@@ -1,0 +1,209 @@
+:root {
+  --background: oklch(0.19 0.055 265);
+  --foreground: oklch(0.98 0.004 250);
+  --surface: oklch(0.25 0.06 265);
+  --gold: oklch(0.8 0.12 87);
+  --gold-soft: oklch(0.9 0.075 90);
+  --primary-foreground: oklch(0.19 0.055 265);
+  --muted-foreground: oklch(0.8 0.025 258);
+  --border: oklch(0.42 0.05 265 / 55%);
+  --gradient-gold: linear-gradient(
+    100deg,
+    oklch(0.98 0.004 250),
+    var(--gold) 50%,
+    oklch(0.64 0.1 78)
+  );
+  --gradient-veil: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--background) 20%, transparent),
+    var(--background)
+  );
+  --shadow-lift: 0 24px 60px -30px oklch(0 0 0 / 80%);
+  --shadow-gold:
+    0 0 0 1px color-mix(in oklab, var(--gold) 35%, transparent),
+    0 24px 60px -32px color-mix(in oklab, var(--gold) 45%, transparent);
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Karla", system-ui, sans-serif;
+  --text-line-height: 1;
+  --container-width: 72rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+
+/*  HEADER SECTION */
+header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  padding: 1.5rem 0;
+  transition: all 0.5s ease;
+  border-bottom: 1px solid transparent;
+  margin-bottom: 2rem;
+}
+header.scrolled {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--background) 85%, transparent);
+  backdrop-filter: blur(16px);
+}
+.container {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+img.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+}
+nav a.nav-link {
+  position: relative;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  transition: color 0.3s;
+}
+nav a.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  height: 1px;
+  width: 0;
+  background: var(--gold);
+  transition: width 0.3s;
+}
+nav a.nav-link:hover {
+  color: var(--gold-soft);
+}
+nav a.nav-link:hover::after {
+  width: 100%;
+}
+.btn-outline-gold {
+  border: 1px solid color-mix(in oklab, var(--gold) 50%, transparent);
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+.btn-outline-gold:hover {
+  background: var(--gold);
+  color: var(--primary-foreground);
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 40%, transparent);
+}
+footer .container {
+  padding-block: 4rem;
+}
+.footer-top {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+@media (min-width: 768px) {
+  .footer-top {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+.footer-brand {
+  max-width: 24rem;
+}
+.footer-brand strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+.footer-brand p {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+.footer-cols {
+  display: flex;
+  gap: 3.5rem;
+}
+.footer-cols .eyebrow {
+  margin-bottom: 0.75rem;
+}
+.footer-cols a{
+  display: block;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  padding-block: 0.35rem;
+  transition: color 0.3s;
+}
+.footer-cols a:hover {
+  color: var(--gold-soft);
+}
+footer .hairline {
+  margin-block: 2.5rem;
+}
+.notice {
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
+}
+.notice b {
+  color: var(--gold);
+  font-weight: 500;
+}
+.copyright {
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: color-mix(in oklab, var(--muted-foreground) 60%, transparent);
+}
+.hairline {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--gold) 60%, transparent),
+    transparent
+  );
+  height: 1px;
+}

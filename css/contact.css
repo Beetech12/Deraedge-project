@@ -1,0 +1,264 @@
+:root {
+        --bg: #121b33;
+        --bg-deep: #0d1426;
+        --surface: rgba(30, 42, 71, 0.45);
+        --surface-hover: rgba(37, 52, 86, 0.75);
+        --fg: #f4f2ec;
+        --muted: #aab3c7;
+        --gold: #d9b45b;
+        --gold-soft: #ecd9a0;
+        --border: rgba(122, 138, 178, 0.35);
+        --primary-fg: #171104;
+        --panel: rgba(24, 34, 60, 0.55);
+      }
+   
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        pointer-events: none;
+        background:
+          radial-gradient(
+            1100px 700px at 85% -10%,
+            rgba(217, 180, 91, 0.1),
+            transparent 60%
+          ),
+          radial-gradient(
+            900px 700px at -10% 40%,
+            rgba(58, 86, 150, 0.2),
+            transparent 60%
+          ),
+          radial-gradient(
+            1000px 800px at 60% 110%,
+            rgba(217, 180, 91, 0.06),
+            transparent 60%
+          ),
+          linear-gradient(180deg, #0d1426 0%, #121b33 45%, #0f1729 100%);
+      }
+      ::selection {
+        background: rgba(217, 180, 91, 0.35);
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      .font-display {
+        font-family: "Cormorant Garamond", serif;
+        font-weight: 500;
+        line-height: 1.12;
+      }
+      h1 {
+        font-size: clamp(2.6rem, 6vw, 3.75rem);
+      }
+      h2 {
+        font-size: clamp(1.9rem, 4vw, 2.5rem);
+      }
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .eyebrow {
+        font-size: 0.66rem;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: var(--gold);
+        font-weight: 700;
+      }
+      .gold-grad {
+        background: linear-gradient(
+          120deg,
+          var(--gold),
+          var(--gold-soft) 55%,
+          var(--gold)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-style: italic;
+      }
+      .gold-soft {
+        color: var(--gold-soft);
+      }
+      .card {
+        background: linear-gradient(
+          160deg,
+          rgba(37, 52, 86, 0.5),
+          rgba(18, 27, 51, 0.55)
+        );
+        border: 1px solid var(--border);
+        backdrop-filter: blur(6px);
+      }
+      
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        font-size: 0.7rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        padding: 15px 32px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        font-family: inherit;
+        border: 1px solid transparent;
+      }
+      .btn-gold {
+        background: var(--gold);
+        color: var(--primary-fg);
+      }
+      .btn-gold:hover {
+        filter: brightness(1.1);
+      }
+      .btn-outline {
+        border-color: rgba(217, 180, 91, 0.5);
+        color: var(--gold);
+        background: transparent;
+      }
+      .btn-outline:hover {
+        background: var(--gold);
+        color: var(--primary-fg);
+      }
+      .page {
+        padding-top: 150px;
+        padding-bottom: 40px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .small {
+        font-size: 0.88rem;
+      }
+      /* header */
+     
+      /* layout */
+      .contact-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 56px;
+        margin-top: 64px;
+      }
+      @media (max-width: 860px) {
+        .contact-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      /* form */
+      .form-card {
+        padding: 36px;
+        border-radius: 2px;
+      }
+      .field label {
+        display: block;
+        font-size: 0.64rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 10px;
+      }
+      .field input,
+      .field textarea {
+        width: 100%;
+        background: rgba(13, 20, 38, 0.6);
+        border: 1px solid rgba(122, 138, 178, 0.45);
+        color: var(--fg);
+        font-family: inherit;
+        font-size: 0.9rem;
+        padding: 13px 16px;
+        border-radius: 2px;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+      .field input:focus,
+      .field textarea:focus {
+        border-color: var(--gold);
+      }
+      .field input::placeholder,
+      .field textarea::placeholder {
+        color: rgba(170, 179, 199, 0.6);
+      }
+      .field textarea {
+        resize: vertical;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+      }
+      @media (max-width: 600px) {
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+      }
+      .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        background: transparent;
+        padding: 9px 16px;
+        font-size: 0.75rem;
+        border-radius: 2px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: inherit;
+      }
+      .chip:hover {
+        border-color: rgba(217, 180, 91, 0.5);
+        color: var(--gold);
+      }
+      .chip.active {
+        border-color: var(--gold);
+        background: var(--gold);
+        color: var(--primary-fg);
+      }
+      /* info */
+      .info-item {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+      .info-item svg {
+        color: var(--gold);
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+      .info-item p.t {
+        font-size: 0.9rem;
+      }
+      .info-item p.b {
+        margin-top: 4px;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .info-legal {
+        margin-top: 8px;
+        font-size: 0.74rem;
+        color: var(--muted);
+        opacity: 0.85;
+        line-height: 1.7;
+      }
+      /* footer */
+      
+      /* reveal */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity 0.8s cubic-bezier(0.2, 0.6, 0.2, 1),
+          transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: none;
+      }

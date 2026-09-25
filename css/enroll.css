@@ -1,0 +1,316 @@
+:root {
+  --bg: #121b33;
+  --bg-deep: #0d1426;
+  --surface: rgba(30, 42, 71, 0.45);
+  --surface-hover: rgba(37, 52, 86, 0.75);
+  --fg: #f4f2ec;
+  --muted: #aab3c7;
+  --gold: #d9b45b;
+  --gold-soft: #ecd9a0;
+  --border: rgba(122, 138, 178, 0.35);
+  --primary-fg: #171104;
+  --panel: rgba(24, 34, 60, 0.55);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      1100px 700px at 85% -10%,
+      rgba(217, 180, 91, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 700px at -10% 40%,
+      rgba(58, 86, 150, 0.2),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 800px at 60% 110%,
+      rgba(217, 180, 91, 0.06),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #0d1426 0%, #121b33 45%, #0f1729 100%);
+}
+::selection {
+  background: rgba(217, 180, 91, 0.35);
+}
+h1,
+h2,
+h3,
+h4,
+.font-display {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 500;
+  line-height: 1.12;
+}
+h1 {
+  font-size: clamp(2.6rem, 6vw, 3.75rem);
+}
+h2 {
+  font-size: clamp(1.9rem, 4vw, 2.5rem);
+}
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.eyebrow {
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+}
+.gold-grad {
+  background: linear-gradient(
+    120deg,
+    var(--gold),
+    var(--gold-soft) 55%,
+    var(--gold)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-style: italic;
+}
+.gold-soft {
+  color: var(--gold-soft);
+}
+.card {
+  background: linear-gradient(
+    160deg,
+    rgba(37, 52, 86, 0.5),
+    rgba(18, 27, 51, 0.55)
+  );
+  border: 1px solid var(--border);
+  backdrop-filter: blur(6px);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 15px 32px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  font-family: inherit;
+  border: 1px solid transparent;
+}
+.btn-gold {
+  background: var(--gold);
+  color: var(--primary-fg);
+}
+.btn-gold:hover {
+  filter: brightness(1.1);
+}
+.btn-outline {
+  border-color: rgba(217, 180, 91, 0.5);
+  color: var(--gold);
+  background: transparent;
+}
+.btn-outline:hover {
+  background: var(--gold);
+  color: var(--primary-fg);
+}
+.page {
+  padding-top: 150px;
+  padding-bottom: 40px;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 0.88rem;
+}
+/* header */
+
+/* program picker */
+.prog-pick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 48px;
+}
+@media (max-width: 800px) {
+  .prog-pick {
+    grid-template-columns: 1fr;
+  }
+}
+.prog-pick input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.prog-pick .pick {
+  display: block;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: rgba(18, 27, 51, 0.45);
+}
+.prog-pick .pick:hover {
+  border-color: rgba(217, 180, 91, 0.5);
+}
+.prog-pick input:checked + .pick {
+  border-color: var(--gold);
+  background: rgba(217, 180, 91, 0.08);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+.pick .p-eyebrow {
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.pick h3 {
+  font-size: 1.45rem;
+  margin-top: 10px;
+}
+.pick .p-price {
+  margin-top: 10px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.9rem;
+  color: var(--gold-soft);
+}
+.pick .p-dur {
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+/* layout */
+.enroll-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 48px;
+  margin-top: 64px;
+  align-items: start;
+  padding-bottom: 11opx;
+}
+@media (max-width: 900px) {
+  .enroll-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* form */
+.form-card {
+  padding: 36px;
+  border-radius: 2px;
+}
+.field label {
+  display: block;
+  font-size: 0.64rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  background: rgba(13, 20, 38, 0.6);
+  border: 1px solid rgba(122, 138, 178, 0.45);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 13px 16px;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--gold);
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(170, 179, 199, 0.6);
+}
+.field select option {
+  background: #121b33;
+  color: var(--fg);
+}
+.field textarea {
+  resize: vertical;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+@media (max-width: 600px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+/* summary */
+.summary {
+  padding: 32px;
+  border-radius: 2px;
+  position: sticky;
+  top: 110px;
+}
+.summary h3 {
+  font-size: 1.5rem;
+}
+.sum-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(122, 138, 178, 0.2);
+  font-size: 0.85rem;
+}
+.sum-row:last-of-type {
+  border-bottom: none;
+}
+.sum-row .k {
+  color: var(--muted);
+}
+.process {
+  margin-top: 26px;
+}
+.process li {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  padding: 10px 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.process .n {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.2rem;
+  color: var(--gold);
+  flex-shrink: 0;
+  width: 26px;
+}
+/* footer */
+
+/* reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s cubic-bezier(0.2, 0.6, 0.2, 1),
+    transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}

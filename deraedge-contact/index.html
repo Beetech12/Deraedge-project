@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Deraedge.com Ltd</title>
+    <link rel="icon" href="../asset/logo2.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/contact.css">
+</head>
+<body>
+     <!-- header -->
+      <header id="header-placeholder"></header>
+
+    <main class="page">
+      <section class="wrap">
+        <div class="reveal">
+          <p class="eyebrow">Contact</p>
+          <h1 style="margin-top: 24px">
+            Start a <span class="gold-grad">conversation.</span>
+          </h1>
+        </div>
+
+        <div class="contact-grid">
+          <div class="reveal">
+            <form class="card form-card" id="contact-form" novalidate>
+              <div class="grid-2">
+                <div class="field">
+                  <label for="name">Full name</label
+                  ><input
+                    id="name"
+                    name="name"
+                    type="text"
+                    placeholder="Your name"
+                    required
+                  />
+                </div>
+                <div class="field">
+                  <label for="email">Email</label
+                  ><input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@email.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style="margin-top: 24px">
+                <p class="eyebrow">Interest</p>
+                <div class="chip-row" id="interest-row"></div>
+              </div>
+
+              <div class="field" style="margin-top: 24px">
+                <label for="message">Message</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="5"
+                  placeholder="Tell us briefly about your goals."
+                  required
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                class="btn btn-gold"
+                style="margin-top: 28px; width: 100%"
+              >
+                Send Enquiry
+              </button>
+            </form>
+          </div>
+
+          <div class="reveal" data-delay="150">
+            <div class="info-item">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m22 7-10 6L2 7" />
+              </svg>
+              <div>
+                <p class="t">Email</p>
+                <p class="b">info@deraedge.com</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <div>
+                <p class="t">Office</p>
+                <p class="b">Private offices — by appointment only.</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <polyline points="9 12 11 14 15 10" />
+              </svg>
+              <div>
+                <p class="t">Confidentiality</p>
+                <p class="b">
+                  All enquiries are handled with strict professional
+                  confidentiality.
+                </p>
+              </div>
+            </div>
+            <div class="hairline" style="margin: 34px 0"></div>
+            <p class="info-legal">
+              Deraedge.com Ltd trades exclusively with its own capital and,
+              where applicable, capital from approved private partners. Nothing
+              here constitutes a public offer of securities or investment
+              solicitation.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+   <!-- footer -->
+    <footer id="footer-placeholder"></footer>
+
+    <div id="toast" role="status">
+      <p class="t-title"></p>
+      <p class="t-body"></p>
+    </div>
+<script src="../js/components.js"></script>
+<script src="../js/main.js"></script>
+    <script>
+      const interests = [
+        "Foundation Program",
+        "Professional Program",
+        "Mastery Program",
+        "Strategic Partnership",
+        "General Enquiry",
+      ];
+      let interest = interests[0];
+      const row = document.getElementById("interest-row");
+      interests.forEach((v) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip" + (v === interest ? " active" : "");
+        b.textContent = v;
+        b.addEventListener("click", () => {
+          interest = v;
+          row
+            .querySelectorAll(".chip")
+            .forEach((c) => c.classList.toggle("active", c === b));
+        });
+        row.appendChild(b);
+      });
+      document
+        .getElementById("contact-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          toast(
+            "Enquiry received",
+            "Thank you — our team will respond within two business days.",
+          );
+          e.target.reset();
+        });
+
+      const io = new IntersectionObserver(
+        (es) =>
+          es.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("in");
+              io.unobserve(e.target);
+            }
+          }),
+        { threshold: 0.12 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => {
+        el.style.transitionDelay = (el.dataset.delay || 0) + "ms";
+        io.observe(el);
+      });
+      document
+        .querySelector(".menu-toggle")
+        .addEventListener("click", () =>
+          document.querySelector(".nav").classList.toggle("open"),
+        );
+      let toastTimer;
+      function toast(title, body) {
+        const t = document.getElementById("toast");
+        t.querySelector(".t-title").textContent = title;
+        t.querySelector(".t-body").textContent = body;
+        t.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove("show"), 4200);
+      }
+    </script>
+</body>
+</html>

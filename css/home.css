@@ -1,0 +1,616 @@
+
+/* Layered ambient background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      1100px 620px at 8% -8%,
+      color-mix(in oklab, var(--gold) 9%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      900px 700px at 100% 4%,
+      color-mix(in oklab, oklch(0.5 0.11 262) 42%, transparent),
+      transparent 66%
+    ),
+    radial-gradient(
+      1000px 800px at 50% 108%,
+      color-mix(in oklab, var(--gold) 6%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      oklch(0.165 0.05 266),
+      var(--background) 42%,
+      oklch(0.175 0.058 270)
+    );
+}
+/* for the headings */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+
+/* -- UTILITIES -- */
+.container {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+.eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.eyebrow .dash-line {
+  display: inline-block;
+  width: 2rem;
+  height: 1px;
+  background: var(--gold);
+}
+
+.text-gradient-gold {
+  background-image: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Research desk */
+.card-lux {
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--gold) 5%, var(--surface)),
+    var(--surface) 60%
+  );
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lift);
+  border-radius: 2px;
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.5s ease,
+    border-color 0.5s ease;
+}
+.card-lux:hover {
+  transform: translateY(-6px);
+  border-color: color-mix(in oklab, var(--gold) 45%, transparent);
+  box-shadow: var(--shadow-gold);
+}
+
+/* -- ANIMATIONS Rise -- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-rise {
+  animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* ticker section */
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-ticker {
+  animation: ticker 40s linear infinite;
+}
+/* hero aurora section  */
+@keyframes aurora {
+  0%,
+  100% {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(6%, 3%, 0) scale(1.15);
+    opacity: 0.85;
+  }
+}
+/*  the glowing part in the home page */
+.aurora {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 55vw;
+  height: 55vw;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--gold) 22%, transparent),
+    transparent 65%
+  );
+  filter: blur(60px);
+  animation: aurora 14s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.grid-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image:
+    linear-gradient(
+      color-mix(in oklab, var(--gold) 12%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--gold) 12%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse at 30% 40%, black, transparent 72%);
+  -webkit-mask-image: radial-gradient(
+    ellipse at 30% 40%,
+    black,
+    transparent 72%
+  );
+}
+
+@keyframes sheen {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+.sheen {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  transform: translateX(-120%);
+}
+.btn-gold:hover .sheen {
+  animation: sheen 0.9s ease;
+}
+/* this is for the pulse-dot on the research section */
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--gold) 70%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+.pulse-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--gold);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.draw-line {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: draw 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+}
+
+@keyframes blip {
+  0%,
+  100% {
+    r: 3.5;
+    opacity: 1;
+  }
+  50% {
+    r: 6;
+    opacity: 0.5;
+  }
+}
+.blip {
+  animation: blip 2s ease-in-out infinite;
+}
+
+/*position section (scroll reveal) when 
+.reveal is a scroll-reveal effect. 
+It makes an element start hidden and slightly lower, 
+then when JavaScript adds the .is-visible class, it fades in and moves upward into 
+its normal position. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+/* The entire code means:
+“If the user has chosen Reduced Motion, 
+turn off the website's animations and immediately show everything in its normal position.” */
+@media (prefers-reduced-motion: reduce) {
+  .aurora,
+  .blip,
+  .pulse-dot,
+  .draw-line,
+  .sheen,
+  .animate-ticker {
+    animation: none;
+  }
+  .draw-line {
+    stroke-dashoffset: 0;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* -- HERO -- */
+.hero-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.hero-content video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+}
+/* this cover the video with veil */
+.hero-content .veil {
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-veil);
+}
+
+.hero-grid {
+  position: relative;
+  display: grid;
+  gap: 3.5rem;
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 8rem 1.5rem 4rem;
+}
+@media (min-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1.15fr 0.85fr;
+    align-items: center;
+  }
+}
+
+.hero-content h1 {
+  margin-top: 1.5rem;
+  max-width: 48rem;
+  font-size: clamp(2.8rem, 6vw, 4.5rem);
+  line-height: 1.05;
+}
+.hero-content p.lead {
+  margin-top: 2rem;
+  max-width: 36rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+
+.hero-ctas {
+  margin-top: 2.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.btn-gold {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--gold);
+  color: var(--primary-foreground);
+  padding: 0.875rem 1.75rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  transition: filter 0.3s;
+}
+.btn-gold:hover {
+  filter: brightness(1.1);
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  padding: 0.875rem 1.75rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.arrow {
+  transition: transform 0.3s;
+}
+a:hover .arrow {
+  transform: translateX(4px);
+}
+
+.stats {
+  margin-top: 3.5rem;
+  max-width: 36rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  border: 1px solid var(--border);
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.stats > div {
+  background: color-mix(in oklab, var(--background) 60%, transparent);
+  padding: 1.5rem 1.25rem;
+  backdrop-filter: blur(4px);
+}
+.stats dt {
+  font-family: var(--font-display);
+  font-size: 1.875rem;
+  color: var(--gold-soft);
+}
+.stats dd {
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+
+/* Research desk panel */
+.desk {
+  padding: 1.5rem;
+  display: none;
+}
+@media (min-width: 1024px) {
+  .desk {
+    display: block;
+  }
+}
+.desk-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.live {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.desk svg {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+.desk-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+}
+.desk-row .pair {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.desk-row .px {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+}
+.desk-row .chg {
+  font-size: 0.75rem;
+  color: var(--gold-soft);
+}
+
+/* TICKER  */
+.ticker-wrap {
+  overflow: hidden;
+  border-block: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 50%, transparent);
+  padding: 1rem 0;
+}
+.ticker {
+  display: flex;
+  width: max-content;
+  gap: 3rem;
+  padding-right: 3rem;
+}
+.ticker span {
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+}
+
+/* SECTIONS  */
+section.block {
+  padding: 7rem 0;
+}
+.split {
+  display: grid;
+  gap: 3.5rem;
+}
+@media (min-width: 768px) {
+  .split {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.split h2 {
+  margin-top: 1.25rem;
+  font-size: 2.25rem;
+  line-height: 1.2;
+  color: var(--foreground);
+}
+.split .copy {
+  display: grid;
+  gap: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+  align-content: start;
+}
+.split .copy .gold-text {
+  color: var(--gold-soft);
+}
+
+.surface-band {
+  border-block: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 30%, transparent);
+}
+/* Capabilities section  */
+.cap-grid {
+  margin-top: 3.5rem;
+  display: grid;
+  gap: 1px;
+  border: 1px solid var(--border);
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .cap-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 1024px) {
+  .cap-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.cap {
+  height: 100%;
+  background: var(--background);
+  padding: 2rem;
+  transition: background 0.5s;
+}
+.cap:hover {
+  background: var(--surface);
+}
+.cap svg {
+  color: var(--gold);
+  transition: transform 0.5s;
+}
+.cap:hover svg {
+ transform: translateY(-4px);
+}
+.cap h3 {
+  margin-top: 1.5rem;
+  font-size: 1.125rem;
+  line-height: 1.35;
+}
+.cap p {
+   margin-top: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+/* PHILOSOPHY */
+.philosophy {
+  max-width: 56rem;
+  text-align: center;
+}
+.philosophy blockquote {
+  margin-top: 2rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.2;
+}
+.philosophy .hairline {
+  width: 10rem;
+  margin: 2.5rem auto;
+}
+.philosophy p{
+   max-width: 42rem;
+  margin-inline: auto;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+/* PARTNERSHIP CTA */
+ .cta-band {
+  border-top: 1px solid var(--border);
+  padding: 6rem 0;
+}
+.cta-band.surface {
+  background: color-mix(in oklab, var(--surface) 40%, transparent);
+}
+.cta-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+@media (min-width: 768px) {
+  .cta-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+.cta-inner h2 {
+  margin-top: 1rem;
+  font-size: 2.25rem;
+}
+.cta-inner p.sub {
+  margin-top: 1rem;
+  max-width: 36rem;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
