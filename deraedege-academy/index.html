@@ -9,12 +9,12 @@
      <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&amp;family=Karla:wght@400;500;600;700&amp;display=swap"
       rel="stylesheet">
   </head>
   <body>
     <!-- header -->
-    <header id="header-placeholder"></header>
+    <div id="header-placeholder"><nav class="fallback-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../deraedge-firm/index.html">The Firm</a><a href="../deraedege-academy/index.html">Academy</a><a href="../deraedge-partnership/index.html">Partnership</a><a href="../deraedge-contact/index.html">Contact</a><a href="../deraedge-enroll/index.html">Enroll</a></nav></div>
 
     <main class="page">
       <section class="wrap">
@@ -33,6 +33,11 @@
         </div>
       </section>
 
+      <section class="wrap academy-payment-controls" aria-label="Program pricing">
+        <label for="academy-currency">View prices in</label>
+        <select id="academy-currency" disabled><option value="USD">USD — US Dollar</option><option value="NGN" disabled>NGN — unavailable</option></select>
+        <p id="academy-payment-note" role="status">Continue to enrollment to check payment availability.</p>
+      </section>
       <!-- Program cards -->
       <section class="wrap">
         <div class="prog-grid">
@@ -116,7 +121,7 @@
             </p>
             <a
               class="btn btn-outline"
-              href="deraedge-enroll.html?program=foundation"
+              href="../deraedge-enroll/index.html?program=foundation"
               >Enroll Now - $100</a
             >
           </article>
@@ -206,7 +211,7 @@
             </p>
             <a
               class="btn btn-gold"
-              href="deraedge-enroll.html?program=professional"
+              href="../deraedge-enroll/index.html?program=professional"
               >Enroll Now - $200</a
             >
           </article>
@@ -309,7 +314,7 @@
             </p>
             <a
               class="btn btn-outline"
-              href="deraedge-enroll.html?program=mastery"
+              href="../deraedge-enroll/index.html?program=mastery"
               >Apply for Mastery - $500</a
             >
           </article>
@@ -350,130 +355,18 @@
           <a
             class="btn btn-gold"
             id="final-cta"
-            href="deraedge-enroll.html?program=professional"
+            href="../deraedge-enroll/index.html?program=professional"
             >Enroll Now - $200</a
           >
         </div>
       </section>
     </main>
 <!-- footer -->
- <footer id="footer-placeholder"></footer>
-
-    <div id="toast" role="status">
-      <p class="t-title"></p>
-      <p class="t-body"></p>
-    </div>
+ <div id="footer-placeholder"><p class="component-fallback">Deraedge.com Ltd · <a href="mailto:info@deraedge.com">info@deraedge.com</a></p></div>
     <script src="../js/components.js"></script>
     <script src="../js/main.js"></script>
-    <script>
-            const programs = {
-        foundation: {
-          name: "Foundation Program",
-          price: 100,
-          duration: "4 Weeks",
-          cta: "Enroll Now — $100",
-          curriculum: [
-            "Introduction to Financial Markets",
-            "Forex, Commodities & Indices",
-            "Market Participants & Market Structure",
-            "Trading Platforms & Tools",
-            "Candlestick Fundamentals",
-            "Support & Resistance",
-            "Trend Identification",
-            "Basic Technical Analysis",
-            "Risk Management Fundamentals",
-            "Trading Psychology",
-            "Developing Your First Trading Plan",
-          ],
-        },
-        professional: {
-          name: "Professional Program",
-          price: 200,
-          duration: "6 Weeks",
-          cta: "Enroll Now — $200",
-          curriculum: [
-            "Advanced Market Structure",
-            "Liquidity Concepts",
-            "Supply & Demand",
-            "Smart Money Concepts (SMC)",
-            "Institutional Order Flow",
-            "Multi-Timeframe Analysis",
-            "Trade Planning",
-            "Position Sizing",
-            "Advanced Risk Management",
-            "Trading Journaling",
-            "Performance Review Framework",
-            "Building a Repeatable Trading System",
-          ],
-        },
-        mastery: {
-          name: "Mastery Program",
-          price: 500,
-          duration: "10 Weeks",
-          cta: "Apply for Mastery — $500",
-          curriculum: [
-            "Proprietary Market Frameworks",
-            "Institutional Trading Models",
-            "Advanced Liquidity Mapping",
-            "Order Flow Analysis",
-            "Market Manipulation & Liquidity Dynamics",
-            "Macro Market Analysis",
-            "Gold (XAU/USD) Trading Strategies",
-            "High-Probability Trade Execution",
-            "Portfolio & Risk Management",
-            "Trading Psychology for Professionals",
-            "Building a Personal Trading Business",
-            "Performance Analytics & Optimization",
-            "Developing Proprietary Trading Strategies",
-          ],
-        },
-      };
-      let active = "professional";
-      const list = document.getElementById("curriculum-list");
-      function renderCurriculum() {
-        list.innerHTML = "";
-        programs[active].curriculum.forEach((item, i) => {
-          const li = document.createElement("li");
-          li.style.animationDelay = i * 40 + "ms";
-          li.innerHTML =
-            '<span class="num">' +
-            String(i + 1).padStart(2, "0") +
-            '</span><span class="item">' +
-            item +
-            "</span>";
-          list.appendChild(li);
-        });
-        document.getElementById("final-name").textContent =
-          programs[active].name;
-        document.getElementById("final-meta").textContent =
-          programs[active].duration +
-          " · USD $" +
-          programs[active].price +
-          " · Certificate on completion.";
-        document.getElementById("final-cta").textContent = programs[active].cta;
-        document.getElementById("final-cta").href =
-          "deraedge-enroll.html?program=" + active;
-      }
-      document.querySelectorAll(".tab-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          active = btn.dataset.id;
-          document
-            .querySelectorAll(".tab-btn")
-            .forEach((b) => b.classList.toggle("active", b === btn));
-          renderCurriculum();
-        });
-      });
-      renderCurriculum();
-
-      let toastTimer;
-      function toast(title, body) {
-        const t = document.getElementById("toast");
-        t.querySelector(".t-title").textContent = title;
-        t.querySelector(".t-body").textContent = body;
-        t.classList.add("show");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.remove("show"), 4200);
-      }
-    </script>
+    <script src="../js/programs.js"></script>
+<script src="../js/payments-client.js"></script>
+<script src="../js/academy.js"></script>
   </body>
 </html>

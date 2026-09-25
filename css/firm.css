@@ -204,14 +204,14 @@
       }
      
       /* reveal */
-      .reveal {
+      .reveal.reveal-pending {
         opacity: 0;
         transform: translateY(28px);
         transition:
           opacity 0.8s cubic-bezier(0.2, 0.6, 0.2, 1),
           transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
       }
-      .reveal.is-visible {
+      .reveal.reveal-pending.is-visible {
         opacity: 1;
         transform: none;
       }

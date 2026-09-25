@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Payment status — Deraedge Academy</title>
+  <link rel="icon" href="../asset/logo2.png" />
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/enroll.css" />
+</head>
+<body>
+  <div id="header-placeholder"><nav class="fallback-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../deraedege-academy/index.html">Academy</a></nav></div>
+  <main class="page"><section class="wrap payment-result">
+    <p class="eyebrow">DeraEdge Trading Academy</p>
+    <h1 id="payment-title">Checking your payment</h1>
+    <p id="payment-message" role="status" aria-live="polite">Please wait while we verify your payment with Paystack.</p>
+    <noscript>Enable JavaScript to check payment status, or email info@deraedge.com with your payment reference.</noscript>
+    <p id="payment-test-note" class="payment-test" hidden>TEST PAYMENT — this is not a real payment receipt.</p>
+    <p class="payment-reference">Reference: <strong id="payment-reference">—</strong></p>
+    <dl id="payment-receipt" class="card payment-receipt" hidden>
+      <div class="sum-row"><dt>Program</dt><dd id="receipt-program"></dd></div>
+      <div class="sum-row"><dt>Total</dt><dd id="receipt-total"></dd></div>
+      <div class="sum-row"><dt>Refunded</dt><dd id="receipt-refunded"></dd></div>
+      <div class="sum-row"><dt>Payment date</dt><dd id="receipt-date"></dd></div>
+      <div class="sum-row"><dt>Status</dt><dd id="receipt-status"></dd></div>
+    </dl>
+    <div class="payment-actions">
+      <button type="button" id="refresh-payment" class="btn btn-outline">Check again</button>
+      <a id="resume-payment" class="btn btn-gold" hidden>Return to Paystack</a>
+      <button type="button" id="print-receipt" class="btn btn-outline" hidden>Print / save receipt</button>
+      <a id="payment-support" class="btn btn-outline" href="mailto:info@deraedge.com">Contact admissions</a>
+      <a id="another-enrollment" class="btn btn-outline" href="index.html" hidden>Start another enrollment</a>
+    </div>
+    <p class="payment-help"><a href="../deraedege-academy/index.html">Return to the Academy</a></p>
+  </section></main>
+  <div id="footer-placeholder"><p class="component-fallback">Deraedge.com Ltd · info@deraedge.com</p></div>
+  <script src="../js/components.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/payments-client.js"></script>
+  <script src="../js/payment-status.js"></script>
+</body>
+</html>

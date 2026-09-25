@@ -244,14 +244,14 @@ h3 {
 It makes an element start hidden and slightly lower, 
 then when JavaScript adds the .is-visible class, it fades in and moves upward into 
 its normal position. */
-.reveal {
+.reveal.reveal-pending {
   opacity: 0;
   transform: translateY(28px);
   transition:
     opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.reveal.is-visible {
+.reveal.reveal-pending.is-visible {
   opacity: 1;
   transform: none;
 }
@@ -270,7 +270,7 @@ turn off the website's animations and immediately show everything in its normal 
   .draw-line {
     stroke-dashoffset: 0;
   }
-  .reveal {
+  .reveal.reveal-pending {
     opacity: 1;
     transform: none;
   }
@@ -411,17 +411,28 @@ a:hover .arrow {
 /* Research desk panel */
 .desk {
   padding: 1.5rem;
-  display: none;
-}
-@media (min-width: 1024px) {
-  .desk {
-    display: block;
-  }
+  display: block;
+  min-width: 0;
+  width: 100%;
 }
 .desk-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.desk-source {
+  color: var(--muted-foreground);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.research-market { margin-top: 1rem; min-height: 390px; }
+.research-market iframe { display: block; width: 100%; border: 0; }
+.desk-note { margin-top: 0.75rem; font-size: 0.7rem; line-height: 1.6; color: var(--muted-foreground); }
+.desk-provider { display: inline-block; margin-top: 0.75rem; color: var(--gold); font-size: 0.75rem; text-decoration: underline; }
+@media (max-width: 480px) {
+  .desk { padding: 1rem 0.75rem; }
+  .desk-head { gap: 0.75rem; flex-wrap: wrap; }
 }
 .live {
   display: flex;

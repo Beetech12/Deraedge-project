@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&amp;family=Karla:wght@400;500;600;700&amp;display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../css/global.css">
@@ -16,7 +16,7 @@
 </head>
 <body>
      <!-- header -->
-      <header id="header-placeholder"></header>
+      <div id="header-placeholder"><nav class="fallback-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../deraedge-firm/index.html">The Firm</a><a href="../deraedege-academy/index.html">Academy</a><a href="../deraedge-partnership/index.html">Partnership</a><a href="../deraedge-contact/index.html">Contact</a><a href="../deraedge-enroll/index.html">Enroll</a></nav></div>
 
     <main class="page">
       <section class="wrap">
@@ -29,7 +29,7 @@
 
         <div class="contact-grid">
           <div class="reveal">
-            <form class="card form-card" id="contact-form" novalidate>
+            <form data-email-subject="Website enquiry" class="card form-card" id="contact-form"><p class="delivery-note">This form prepares an email to <a href="mailto:info@deraedge.com">info@deraedge.com</a>. Review and send it in your email app; preparing a draft does not submit your request. If no email app opens, use the copy option below.</p><noscript><p>Please email info@deraedge.com directly. This form needs JavaScript to prepare a draft.</p></noscript>
               <div class="grid-2">
                 <div class="field">
                   <label for="name">Full name</label
@@ -70,11 +70,11 @@
               </div>
 
               <button
-                type="submit"
+                type="submit" disabled
                 class="btn btn-gold"
                 style="margin-top: 28px; width: 100%"
               >
-                Send Enquiry
+                Prepare Enquiry Email
               </button>
             </form>
           </div>
@@ -147,76 +147,10 @@
     </main>
 
    <!-- footer -->
-    <footer id="footer-placeholder"></footer>
-
-    <div id="toast" role="status">
-      <p class="t-title"></p>
-      <p class="t-body"></p>
-    </div>
+    <div id="footer-placeholder"><p class="component-fallback">Deraedge.com Ltd · <a href="mailto:info@deraedge.com">info@deraedge.com</a></p></div>
 <script src="../js/components.js"></script>
 <script src="../js/main.js"></script>
-    <script>
-      const interests = [
-        "Foundation Program",
-        "Professional Program",
-        "Mastery Program",
-        "Strategic Partnership",
-        "General Enquiry",
-      ];
-      let interest = interests[0];
-      const row = document.getElementById("interest-row");
-      interests.forEach((v) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "chip" + (v === interest ? " active" : "");
-        b.textContent = v;
-        b.addEventListener("click", () => {
-          interest = v;
-          row
-            .querySelectorAll(".chip")
-            .forEach((c) => c.classList.toggle("active", c === b));
-        });
-        row.appendChild(b);
-      });
-      document
-        .getElementById("contact-form")
-        .addEventListener("submit", (e) => {
-          e.preventDefault();
-          toast(
-            "Enquiry received",
-            "Thank you — our team will respond within two business days.",
-          );
-          e.target.reset();
-        });
-
-      const io = new IntersectionObserver(
-        (es) =>
-          es.forEach((e) => {
-            if (e.isIntersecting) {
-              e.target.classList.add("in");
-              io.unobserve(e.target);
-            }
-          }),
-        { threshold: 0.12 },
-      );
-      document.querySelectorAll(".reveal").forEach((el) => {
-        el.style.transitionDelay = (el.dataset.delay || 0) + "ms";
-        io.observe(el);
-      });
-      document
-        .querySelector(".menu-toggle")
-        .addEventListener("click", () =>
-          document.querySelector(".nav").classList.toggle("open"),
-        );
-      let toastTimer;
-      function toast(title, body) {
-        const t = document.getElementById("toast");
-        t.querySelector(".t-title").textContent = title;
-        t.querySelector(".t-body").textContent = body;
-        t.classList.add("show");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.remove("show"), 4200);
-      }
-    </script>
+    <script src="../js/forms.js"></script>
+<script src="../js/contact.js"></script>
 </body>
 </html>

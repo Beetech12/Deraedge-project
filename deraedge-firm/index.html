@@ -7,14 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&amp;family=Karla:wght@400;500;600;700&amp;display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../css/global.css" />
     <link rel="stylesheet" href="../css/firm.css" />
   </head>
   <body>
-    <header id="header-placeholder"></header>
+    <div id="header-placeholder"><nav class="fallback-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../deraedge-firm/index.html">The Firm</a><a href="../deraedege-academy/index.html">Academy</a><a href="../deraedge-partnership/index.html">Partnership</a><a href="../deraedge-contact/index.html">Contact</a><a href="../deraedge-enroll/index.html">Enroll</a></nav></div>
     <main class="page">
       <section class="wrap">
         <div class="reveal">
@@ -100,30 +100,16 @@
             strategic partners who share our commitment to disciplined investing
             and long-term value creation.
           </p>
-          <a href="deraedge-contact.html" class="btn btn-outline"
+          <a href="../deraedge-contact/index.html" class="btn btn-outline"
             >Partner Enquiries</a
           >
         </div>
       </section>
     </main>
-    <footer id="footer-placeholder"></footer>
-    <div id="toast" role="status">
-      <p class="t-title"></p>
-      <p class="t-body"></p>
-    </div>
+    <div id="footer-placeholder"><p class="component-fallback">Deraedge.com Ltd · <a href="mailto:info@deraedge.com">info@deraedge.com</a></p></div>
 
     <script src="../js/components.js"></script>
     <script src="../js/main.js"></script>
-    <script>
-      let toastTimer;
-      function toast(title, body) {
-        const t = document.getElementById("toast");
-        t.querySelector(".t-title").textContent = title;
-        t.querySelector(".t-body").textContent = body;
-        t.classList.add("show");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.remove("show"), 4200);
-      }
-    </script>
+
   </body>
 </html>

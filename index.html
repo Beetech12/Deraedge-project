@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&amp;family=Karla:wght@400;500;600;700&amp;display=swap"
       rel="stylesheet"
     />
     <link rel="icon" href="./asset/logo2.png" />
@@ -21,11 +21,11 @@
   <body>
     <!-- Header -->
 
-    <div id="header-placeholder"></div>
+    <div id="header-placeholder"><nav class="fallback-nav" aria-label="Main navigation"><a href="./index.html">Home</a><a href="./deraedge-firm/index.html">The Firm</a><a href="./deraedege-academy/index.html">Academy</a><a href="./deraedge-partnership/index.html">Partnership</a><a href="./deraedge-contact/index.html">Contact</a><a href="./deraedge-enroll/index.html">Enroll</a></nav></div>
     <!-- Hero Section -->
     <section class="hero-content">
-      <video autoplay muted loop playsinline aria-hidden="true">
-        <source src="./asset/hero-video.mp4" type="video/mp4" />
+      <video data-background-video muted loop playsinline preload="none" poster="./asset/hero-poster.jpg" aria-hidden="true">
+        <source data-src="./asset/hero-video.mp4" type="video/mp4" />
       </video>
       <div class="veil" aria-hidden="true"></div>
       <div class="grid-field" aria-hidden="true"></div>
@@ -49,11 +49,11 @@
             management.
           </p>
           <div class="hero-ctas animate-rise" style="animation-delay: 240ms">
-            <a href="#" class="btn-gold"
+            <a href="./deraedge-firm/index.html" class="btn-gold"
               ><span class="sheen" aria-hidden="true"></span> About the Firm
               <span class="arrow">→</span></a
             >
-            <a href="#" class="btn-ghost">Trading Academy</a>
+            <a href="./deraedege-academy/index.html" class="btn-ghost">Trading Academy</a>
           </div>
           <dl class="stats animate-rise" style="animation-delay: 340ms">
             <div>
@@ -70,61 +70,17 @@
             </div>
           </dl>
         </div>
-        <!-- Research Desk Panel -->
-        <div class="card-lux desk animate-rise" style="animation-delay: 42oms">
+        <!-- Research Desk: quotes and chart supplied by TradingView. -->
+        <section class="card-lux desk animate-rise" aria-labelledby="research-desk-title" style="animation-delay: 420ms">
           <div class="desk-head">
-            <p class="eyebrow">Research Desk</p>
-            <span class="live"> <span class="pulse-dot"></span>Live</span>
+            <h2 class="eyebrow" id="research-desk-title">Research Desk</h2>
+            <span class="desk-source">Market quotes</span>
           </div>
-          <svg viewBox="0 0 320 120" role="img" aria-label="Market trend">
-            <defs>
-              <linearGradient id="gfill" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="0%"
-                  stop-color="oklch(0.8 0.12 87)"
-                  stop-opacity="0.35"
-                />
-                <stop
-                  offset="100%"
-                  stop-color="oklch(0.8 0.12 87)"
-                  stop-opacity="0"
-                />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0 96 L40 84 L80 92 L120 60 L160 70 L200 40 L240 48 L280 22 L320 14 V120 H0 Z"
-              fill="url(#gfill)"
-            />
-            <path
-              class="draw-line"
-              d="M0 96 L40 84 L80 92 L120 60 L160 70 L200 40 L240 48 L280 22 L320 14"
-              fill="none"
-              stroke="oklch(0.8 0.12 87)"
-              stroke-width="1.5"
-            />
-            <circle
-              cx="320"
-              cy="14"
-              r="3.5"
-              fill="oklch(0.8 0.12 87)"
-              class="blip"
-            />
-          </svg>
-          <div>
-            <div class="desk-row">
-              <span class="pair">XAU/USD</span><span class="px">2,418.60</span>
-              <span class="chg">+o.62%</span>
-            </div>
-            <div class="desk-row">
-              <span class="pair">NAS100</span><span class="px">20,142.5</span>
-              <span class="chg">+0.31%</span>
-            </div>
-            <div class="desk-row">
-              <span class="pair">EUR/USD</span><span class="px">1.0916</span>
-              <span class="chg">+0.08%</span>
-            </div>
-          </div>
-        </div>
+          <div id="research-market" class="research-market" hidden></div>
+          <p id="research-status" class="desk-note" role="status">Market data requires JavaScript and a connection to TradingView.</p>
+          <p class="desk-note">Source: FOREX.com via TradingView. NAS100 is a cash CFD quote. Quotes may be delayed; closed markets show their last available price.</p>
+          <a class="desk-provider" href="https://www.tradingview.com/markets/" target="_blank" rel="noopener noreferrer">Track markets on TradingView</a>
+        </section>
       </div>
     </section>
     <!-- Ticker -->
@@ -345,7 +301,7 @@
           </p>
         </div>
         <div class="reveal" style="transition-delay: 150ms">
-          <a href="#" class="btn-outline-gold" style="padding: 1rem 2rem"
+          <a href="./deraedge-partnership/index.html#partner-form" class="btn-outline-gold" style="padding: 1rem 2rem"
             >Apply for Consideration <span class="arrow">→</span></a
           >
         </div>
@@ -363,16 +319,17 @@
           </p>
         </div>
         <div class="reveal" style="transition-delay: 150ms">
-          <a href="#" class="btn-gold" style="padding: 1rem 2rem"
+          <a href="./deraedege-academy/index.html" class="btn-gold" style="padding: 1rem 2rem"
             >Explore Programs <span class="arrow">→</span></a
           >
         </div>
       </div>
     </section>
   <!-- FOOTER -->
-    <div id="footer-placeholder"></div>
-    
-    <script src="js/components.js"></script> 
+    <div id="footer-placeholder"><p class="component-fallback">Deraedge.com Ltd · <a href="mailto:info@deraedge.com">info@deraedge.com</a></p></div>
+
+    <script src="js/components.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/research-desk.js"></script>
   </body>
 </html>

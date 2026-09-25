@@ -7,15 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&amp;family=Karla:wght@400;500;600;700&amp;display=swap"
       rel="stylesheet"
     />
+    <link rel="icon" href="../asset/logo2.png">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/enroll.css">
 </head>
 <body>
     <!-- header -->
-     <header id="header-placeholder"></header>
+     <div id="header-placeholder"><nav class="fallback-nav" aria-label="Main navigation"><a href="../index.html">Home</a><a href="../deraedge-firm/index.html">The Firm</a><a href="../deraedege-academy/index.html">Academy</a><a href="../deraedge-partnership/index.html">Partnership</a><a href="../deraedge-contact/index.html">Contact</a><a href="../deraedge-enroll/index.html">Enroll</a></nav></div>
     <main class="page">
       <section class="wrap">
         <div class="reveal">
@@ -24,16 +25,15 @@
             Begin your <span class="gold-grad">enrollment.</span>
           </h1>
           <p class="small muted" style="margin-top: 28px; max-width: 620px">
-            Choose your program, complete the request below, and our admissions
-            team will contact you within two business days to confirm your place
-            and arrange payment.
+            Choose your program, review the total, and continue to secure Paystack
+            checkout. Your enrollment is recorded after payment is verified.
           </p>
         </div>
 
         <!-- Program picker -->
         <div class="prog-pick reveal" id="prog-pick">
           <label>
-            <input type="radio" name="program" value="foundation" />
+            <input type="radio" name="program" form="enroll-form" value="foundation" />
             <span class="pick">
               <span class="p-eyebrow">Beginner Trader</span>
               <h3>Foundation Program</h3>
@@ -42,7 +42,7 @@
             </span>
           </label>
           <label>
-            <input type="radio" name="program" value="professional" />
+            <input type="radio" name="program" form="enroll-form" value="professional" />
             <span class="pick">
               <span class="p-eyebrow">Intermediate Trader · Most Chosen</span>
               <h3>Professional Program</h3>
@@ -51,7 +51,7 @@
             </span>
           </label>
           <label>
-            <input type="radio" name="program" value="mastery" />
+            <input type="radio" name="program" form="enroll-form" value="mastery" />
             <span class="pick">
               <span class="p-eyebrow">Professional Mastery</span>
               <h3>Mastery Program</h3>
@@ -63,13 +63,18 @@
 
         <div class="enroll-grid">
           <!-- Form -->
-          <form class="card form-card reveal" id="enroll-form" novalidate>
+          <form class="card form-card reveal" id="enroll-form">
+            <p class="delivery-note">Pay securely with Paystack. Available payment methods are shown at checkout. Your card details are never collected by this website.</p>
+            <p id="checkout-status" class="form-status" role="status" aria-live="polite">Checking payment availability…</p>
+            <p id="test-payment-note" class="payment-test" hidden>Test checkout — no real money will be collected.</p>
+            <p id="previous-checkout" hidden>An earlier checkout is saved in this browser. <a href="payment.html" id="previous-checkout-link">Check its payment status</a> before paying again.</p>
+            <noscript><p>Checkout requires JavaScript. Please <a href="mailto:info@deraedge.com">contact admissions</a> for help.</p></noscript>
             <div class="grid-2">
               <div class="field">
                 <label for="name">Full name</label
                 ><input
                   id="name"
-                  name="name"
+                  name="name" maxlength="120" autocomplete="name"
                   type="text"
                   placeholder="Your name"
                   required
@@ -79,7 +84,7 @@
                 <label for="email">Email</label
                 ><input
                   id="email"
-                  name="email"
+                  name="email" maxlength="254" autocomplete="email"
                   type="email"
                   placeholder="you@email.com"
                   required
@@ -89,14 +94,14 @@
                 <label for="phone">Phone / WhatsApp (optional)</label
                 ><input
                   id="phone"
-                  name="phone"
+                  name="phone" maxlength="40" autocomplete="tel"
                   type="tel"
                   placeholder="+234 ..."
                 />
               </div>
               <div class="field">
                 <label for="country">Country</label
-                ><input id="country" name="country" type="text" required />
+                ><input id="country" name="country" maxlength="80" autocomplete="country-name" type="text" required />
               </div>
             </div>
 
@@ -125,28 +130,24 @@
               <label for="goals">Your goals (optional)</label>
               <textarea
                 id="goals"
-                name="goals"
+                name="goals" maxlength="2000"
                 rows="4"
                 placeholder="What do you want to achieve from this program?"
               ></textarea>
             </div>
 
-            <button
-              type="submit"
-              class="btn btn-gold"
-              style="margin-top: 28px; width: 100%"
-              id="submit-btn"
-            >
-              Request Enrollment — Professional Program · $200
-            </button>
-
-            <p
-              class="small muted"
-              style="margin-top: 20px; font-size: 0.74rem; opacity: 0.85"
-            >
-              Submitting this request does not confirm your place. Enrollment is
-              completed after a short admissions call and payment confirmation.
-            </p>
+            <div class="field payment-currency">
+              <label for="currency">Payment currency</label>
+              <select id="currency" name="currency" disabled><option value="USD">USD — US Dollar</option><option value="NGN" disabled>NGN — currently unavailable</option></select>
+              <p class="small muted">Only configured currencies are available. Your bank may apply currency conversion charges.</p>
+            </div>
+            <div id="payment-policies" hidden>
+              <label class="payment-consent"><input type="checkbox" id="consent" name="consent" required />
+                <span>I agree to the <a id="terms-link" target="_blank" rel="noopener noreferrer">enrollment terms</a> and <a id="refund-link" target="_blank" rel="noopener noreferrer">refund policy</a>, and have read the <a id="privacy-link" target="_blank" rel="noopener noreferrer">privacy notice</a>.</span>
+              </label>
+            </div>
+            <button type="submit" disabled class="btn btn-gold" id="submit-btn">Checkout unavailable</button>
+            <p class="small muted payment-help">Need help before paying? <a href="mailto:info@deraedge.com?subject=Academy%20enrollment">Contact admissions</a>. Course access and cohort arrangements are provided by the admissions team after payment verification.</p>
           </form>
 
           <!-- Summary -->
@@ -155,7 +156,7 @@
             <h3 style="margin-top: 14px" id="sum-name">Professional Program</h3>
             <div class="hairline" style="margin: 20px 0"></div>
             <div class="sum-row">
-              <span class="k">Price</span
+              <span class="k">Total payable</span
               ><span class="gold-soft" id="sum-price">$200 USD</span>
             </div>
             <div class="sum-row">
@@ -168,100 +169,28 @@
             <div class="hairline" style="margin: 20px 0"></div>
             <p class="eyebrow">Enrollment Process</p>
             <ul class="process" style="list-style: none">
-              <li><span class="n">01</span>Submit this enrollment request</li>
+              <li><span class="n">01</span>Choose your program and currency</li>
               <li>
-                <span class="n">02</span>Short admissions call with our team
+                <span class="n">02</span>Pay on Paystack’s secure checkout
               </li>
-              <li><span class="n">03</span>Secure payment confirmation</li>
+              <li><span class="n">03</span>Receive verified payment confirmation</li>
               <li>
-                <span class="n">04</span>Receive access and begin your cohort
+                <span class="n">04</span>Admissions arranges your cohort and access
               </li>
             </ul>
-            
+
           </aside>
         </div>
       </section>
     </main>
 
 <!-- Footer -->
- <footer id="footer-placeholder"></footer>
-
-    <div id="toast" role="status">
-      <p class="t-title"></p>
-      <p class="t-body"></p>
-    </div>
+ <div id="footer-placeholder"><p class="component-fallback">Deraedge.com Ltd · <a href="mailto:info@deraedge.com">info@deraedge.com</a></p></div>
     <script src="../js/components.js"></script>
     <script src="../js/main.js"></script>
-    <script>
-      const programs = {
-        foundation: {
-          name: "Foundation Program",
-          price: 100,
-          duration: "4 Weeks",
-          cert: "Certificate of Completion",
-        },
-        professional: {
-          name: "Professional Program",
-          price: 200,
-          duration: "6 Weeks",
-          cert: "Certificate of Completion",
-        },
-        mastery: {
-          name: "Mastery Program",
-          price: 500,
-          duration: "10 Weeks",
-          cert: "Certificate of Mastery",
-        },
-      };
-      const order = ["foundation", "professional", "mastery"];
-      const params = new URLSearchParams(location.search);
-      let selected = order.includes(params.get("program"))
-        ? params.get("program")
-        : "professional";
-
-      function updateUI() {
-        const d = programs[selected];
-        document.getElementById("sum-name").textContent = d.name;
-        document.getElementById("sum-price").textContent =
-          "$" + d.price + " USD";
-        document.getElementById("sum-dur").textContent = d.duration;
-        document.getElementById("sum-cert").textContent = d.cert;
-        document.getElementById("submit-btn").textContent =
-          "Request Enrollment — " + d.name + " · $" + d.price;
-      }
-      const radios = document.querySelectorAll("input[name=program]");
-      radios.forEach((r) => {
-        r.checked = r.value === selected;
-        r.addEventListener("change", () => {
-          selected = r.value;
-          updateUI();
-        });
-      });
-      updateUI();
-
-      document.getElementById("enroll-form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const d = programs[selected];
-        toast(
-          "Enrollment request received",
-          d.name +
-            " — our admissions team will contact you within two business days.",
-        );
-        e.target.reset();
-        radios.forEach((r) => (r.checked = r.value === selected));
-      });
-
-     
-      let toastTimer;
-      function toast(title, body) {
-        const t = document.getElementById("toast");
-        t.querySelector(".t-title").textContent = title;
-        t.querySelector(".t-body").textContent = body;
-        t.classList.add("show");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.remove("show"), 4200);
-      }
-    </script>
+    <script src="../js/programs.js"></script>
+<script src="../js/payments-client.js"></script>
+<script src="../js/enroll.js"></script>
 
 </body>
 </html>
