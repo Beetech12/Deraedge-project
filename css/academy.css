@@ -1,10 +1,4 @@
-*,
-      *::before,
-      *::after {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+
       :root {
         --bg: #121b33;
         --bg-deep: #0d1426;
@@ -18,17 +12,7 @@
         --primary-fg: #171104;
         --panel: rgba(24, 34, 60, 0.55);
       }
-      html {
-        scroll-behavior: smooth;
-      }
-      body {
-        font-family: "Karla", sans-serif;
-        background: var(--bg);
-        color: var(--fg);
-        line-height: 1.6;
-        -webkit-font-smoothing: antialiased;
-        overflow-x: hidden;
-      }
+    
       body::before {
         content: "";
         position: fixed;
