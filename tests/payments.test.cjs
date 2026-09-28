@@ -51,7 +51,7 @@ async function fixture(t, options = {}) {
     const response = await fetch(`${base}/api/orders/${reference}`, { headers: { Authorization: `Bearer ${key}` } });
     return { status: response.status, data: await response.json() };
   }
-  return { db, base, checkout, event, status, token, transactions, refunds, initCount: () => initCount };
+  return { db, base, checkout, event, status, token, transactions, refunds, config, provider, initCount: () => initCount };
 }
 
 test('currencies are explicit; naira is never derived from an invented FX rate', () => {
@@ -67,6 +67,7 @@ test('price tampering is ignored, consent required, and checkout requests must b
   assert.equal((await f.checkout({ ...enrollment, consent: false })).status, 400);
   assert.equal((await f.checkout({ ...enrollment, email: 'bad' })).status, 400);
   assert.equal((await f.checkout({ ...enrollment, program: '__proto__' })).status, 400);
+  assert.equal((await f.checkout({ ...enrollment, currency: 'toString' })).status, 400);
   assert.equal((await f.checkout(enrollment, f.token, 'https://evil.example')).status, 403);
   const order = await f.checkout({ ...enrollment, amount: 1 });
   assert.equal(order.status, 200);
@@ -173,4 +174,37 @@ test('Paystack adapter uses the server secret and raw-body HMAC', async () => {
     return { ok: true, json: async () => ({ status: true, data: { status: 'pending' } }) };
   });
   assert.equal((await adapter.verify('dera-test')).status, 'pending');
+});
+
+test('a late pending verification cannot overwrite a successful webhook', async t => {
+  const f = await fixture(t);
+  const { data: order } = await f.checkout();
+  const snapshot = { ...f.transactions.get(order.reference) };
+  let signalStarted, release;
+  const started = new Promise(resolve => { signalStarted = resolve; });
+  const gate = new Promise(resolve => { release = resolve; });
+  f.provider.verify = async () => { signalStarted(); await gate; return snapshot; };
+  const statusRequest = f.status(order.reference);
+  await started;
+  assert.equal((await f.event('charge.success', { ...snapshot, status: 'success' })).status, 200);
+  release();
+  assert.equal((await statusRequest).data.status, 'paid');
+});
+
+test('test receipts remain test receipts after switching to live mode', async t => {
+  const f = await fixture(t);
+  const { data: order } = await f.checkout();
+  await f.event('charge.success', { ...f.transactions.get(order.reference), status: 'success' });
+  f.config.live = true;
+  assert.equal((await f.status(order.reference)).data.testMode, true);
+  assert.equal((await f.checkout()).status, 409);
+});
+
+test('a reversed transaction never offers another payment checkout', async t => {
+  const f = await fixture(t);
+  const { data: order } = await f.checkout();
+  f.transactions.get(order.reference).status = 'reversed';
+  const result = (await f.status(order.reference)).data;
+  assert.equal(result.status, 'review');
+  assert.equal(result.checkoutUrl, null);
 });

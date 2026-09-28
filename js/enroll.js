@@ -79,7 +79,7 @@
       attempt.reference = result.reference;
       api.save(attempt);
       previous();
-      if (result.checkoutUnavailable || ['paid','refunded','partially_refunded','disputed'].includes(result.status)) location.assign(api.statusUrl(result.reference));
+      if (result.checkoutUnavailable || ['paid','refunded','partially_refunded','disputed','review'].includes(result.status)) location.assign(api.statusUrl(result.reference));
       else if (api.safeCheckout(result.checkoutUrl)) location.assign(result.checkoutUrl);
       else throw new Error('Unable to open secure checkout. Check the saved payment status before trying again.');
     } catch (error) {

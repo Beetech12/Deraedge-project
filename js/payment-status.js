@@ -17,6 +17,7 @@
     refunded: ['Payment refunded', 'A full refund has been processed. Contact admissions for questions about your enrollment.'],
     partially_refunded: ['Payment partially refunded', 'A partial refund has been processed. The receipt shows the refunded amount. Contact admissions for your enrollment status.'],
     disputed: ['Payment under review', 'This payment has a dispute that needs review. Contact admissions with your reference.'],
+    review: ['Payment under review', 'Paystack reports a payment reversal or review. Do not pay again; contact admissions with your reference.'],
   };
   if (!reference || !/^dera-[a-f0-9]{36}$/.test(reference) || saved?.reference !== reference || !saved?.token) {
     title.textContent = 'Payment lookup unavailable';

@@ -233,3 +233,6 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; transition-delay: 0ms !important; }
   .reveal.reveal-pending { opacity: 1 !important; transform: none !important; }
 }
+.message-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-top: 0.75rem; }
+.message-actions button { white-space: normal; }
+.email-preview[hidden] { display: none; }

@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
-const base = process.env.BASE_URL || 'http://127.0.0.1:8765/';
+const base = process.env.BASE_URL || 'http://localhost:3000/';
 const paths = ['index.html', 'deraedge-firm/index.html', 'deraedege-academy/index.html', 'deraedge-partnership/index.html', 'deraedge-contact/index.html', 'deraedge-enroll/index.html'];
 
 (async () => {
@@ -68,11 +68,10 @@ const paths = ['index.html', 'deraedge-firm/index.html', 'deraedege-academy/inde
       await form.locator('textarea:not([readonly])').first().fill('Test draft content. '.repeat(150));
       await form.locator('[type="submit"]').click();
       const draft = await form.locator('.email-preview textarea').inputValue();
-      assert.match(draft, /To: info@deraedge.com/);
+      assert.match(draft, /To: okolochinedu10@gmail\.com/);
       assert.doesNotMatch(draft, /undefined/);
-      assert.match(await form.locator('.form-status').textContent(), /not sent/);
+      assert.match(await form.locator('.form-status').textContent(), /not (?:been )?sent|unavailable/);
       assert.equal(await form.locator('#email').inputValue(), 'test@example.com');
-      if (id === 'enroll-form') assert.match(draft, /program: mastery/);
       if (id === 'contact-form') assert.match(draft, /Interest: Foundation Program/);
       if (id === 'partner-form') assert.match(draft, /Contributions: Strategic Capital/);
     }
@@ -101,6 +100,7 @@ const paths = ['index.html', 'deraedge-firm/index.html', 'deraedege-academy/inde
     assert.match(await nested.locator('#primary-nav a').first().getAttribute('href'), /\/__preview__\/index.html$/);
     assert.equal((await context.request.get(new URL('asset/hero-poster.jpg', base).href)).ok(), true);
     const noJS = await browser.newContext({ javaScriptEnabled: false });
+    await noJS.route('https://**/*', route => route.abort());
     const plain = await noJS.newPage();
     for (const path of paths) {
       await plain.goto(new URL(path, base).href);
@@ -108,7 +108,7 @@ const paths = ['index.html', 'deraedge-firm/index.html', 'deraedege-academy/inde
       assert.equal(await plain.locator('.reveal').evaluateAll(nodes => nodes.every(n => getComputedStyle(n).opacity === '1')), true);
       if (await plain.locator('form').count()) assert.equal(await plain.locator('[type="submit"]').isDisabled(), true);
     }
-    console.log('PASS: six pages, local links, mobile menu, program selection, validation, email drafts, component failures, reduced motion, and no-JavaScript fallbacks.');
+    console.log('PASS: six pages, local links, mobile menu, program selection, validation, message review, component failures, reduced motion, and no-JavaScript fallbacks.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
 function locationBase(url) { return new URL(url).origin; }

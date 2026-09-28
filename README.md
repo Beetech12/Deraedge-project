@@ -1,10 +1,10 @@
 # Deraedge website
 
-HTML, CSS, and JavaScript frontend with a Node.js 24+ payment server. No frontend framework or build step is required. Enrollment now uses Paystack; contact and partnership forms still prepare email drafts.
+HTML, CSS, and JavaScript frontend with a Node.js 24+ server. No frontend framework or build step is required. Enrollment uses Paystack; reviewed Contact and Partnership messages are sent directly by the server over SMTP.
 
 ## Run locally
 
-Run `npm start` from the project directory and open `http://localhost:3000/`. The server works without credentials; checkout is visibly unavailable until configured. Node.js 24+ is required for the built-in SQLite database. There are no production npm dependencies.
+Install dependencies with `pnpm install --frozen-lockfile` (or `npm install`), run `npm start` from the project directory, and open `http://localhost:3000/`. The server works without credentials; payment checkout and email delivery are visibly unavailable until their respective settings are configured. Node.js 24+ is required for the built-in SQLite database. Nodemailer is used for server-side SMTP.
 
 For payment configuration, copy `.env.example` to `.env` and set values privately. Do not put secret keys in browser JavaScript or commit `.env`. Use the Node server, not a generic static server: the Node server explicitly prevents public access to secrets, database files, server code, and tests.
 
@@ -57,12 +57,32 @@ Receipts can be retrieved in the browser session that started checkout. Tokens a
 - `npm test`: backend tests for pricing, validation, consent, duplicate checkout, signatures, verification, refunds, persistence, and private file protection. No network payment requests.
 - Install browser test tooling with `npm install --save-dev playwright` and `npx playwright install chromium`.
 - `npm run test:payments:browser`: self-contained local server and simulated Paystack, covering Academy-to-checkout navigation, currencies, required consent, verified receipt, reload, private lookup, cancellation, provider errors, and mobile layout. **No real charges are made.**
-- `npm run test:browser`: general site smoke checks against a running server. Set `BASE_URL=http://localhost:3000/` for the Node app; the older default is port 8765. Browser tests default to installed Edge; set `BROWSER_CHANNEL=chromium` to use Playwright's bundled Chromium.
+- `npm run test:browser`: general site smoke checks against the running server at `http://localhost:3000/`. Set `BASE_URL` for a different address. Browser tests default to installed Edge; set `BROWSER_CHANNEL=chromium` to use Playwright's bundled Chromium.
 
 ## Frontend and other integrations
 
 `components/` contains the shared header/footer. Pages retain fallback navigation if component loading fails. `js/main.js` implements the mobile menu, progressive reveals, and reduced-motion video handling. `js/programs.js` provides static display fallbacks; **server/config.cjs is authoritative for checkout prices**. The existing `deraedege-academy` spelling remains to preserve incoming URLs.
 
-Contact and partnership forms prepare email drafts addressed to `info@deraedge.com`; visitors still need to send the draft. They do not automatically submit enquiries.
+Contact and Partnership messages are automatically delivered to **okolochinedu10@gmail.com** after the customer reviews and clicks **Send message**. No email app opens. The recipient is fixed server-side; the customer's address is the Reply-To address. Editing fields or selections requires another review. Only an SMTP acceptance marks a message sent; this does not guarantee inbox placement or that it has been read.
+
+## Automatic email setup
+
+The `.env.example` includes Gmail defaults. Put credentials privately in `.env` (ignored by Git):
+
+```text
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=okolochinedu10@gmail.com
+SMTP_PASSWORD=YOUR_GOOGLE_APP_PASSWORD
+SMTP_FROM=okolochinedu10@gmail.com
+```
+
+Enable 2-Step Verification for the sending Google account and create an App Password. Use the app password, **not the normal Gmail password**. Another authenticated sender can be used; set `SMTP_USER` and `SMTP_FROM` accordingly. The destination remains `okolochinedu10@gmail.com`. For another provider, set its SMTP host, port (465 for implicit TLS or 587 for STARTTLS), username, password, and permitted From address. TLS and certificate verification are required. See [Nodemailer's Gmail setup](https://nodemailer.com/guides/using-gmail) and [SMTP settings](https://nodemailer.com/smtp).
+
+Run `npm run mail:check` to verify SMTP connectivity/authentication without sending any email, then restart `npm start`. Match `PUBLIC_URL` to the browser's exact origin (e.g. `http://localhost:3000`, not `http://127.0.0.1:3000`). Your production host must permit outbound SMTP. Protect `.env` and never upload it to a generic static web host.
+
+Messages are saved to a SQLite outbox before delivery. The server worker checks every five seconds and retries known temporary SMTP/connection failures up to five attempts with increasing delays. Repeated clicks/retries reuse the same private request token; refresh can check the existing message in the same browser session. A connection lost at an ambiguous stage or a server interruption during sending is marked `unknown` instead of blindly sending a duplicate. Authentication/permanent rejections are marked failed. Check the sending mailbox/server logs and the message reference before resubmitting an unknown message. Messages and their content remain in the database for operations; apply the same access controls, backup, and retention policy as enrollment records. This uses the existing single-server deployment model.
+
+Tests: `npm test` includes email validation, fixed-recipient transport, outbox idempotency, retry, failure, and API checks. `npm run test:messages:browser` exercises both complete review-to-send flows using a mock transport—no real emails are sent. `node tests/message-review.cjs` checks review-only behavior against the running site. Real delivery still requires configured credentials and an end-to-end test with your mailbox.
 
 The Research Desk embeds TradingView's Market Overview for FOREX.com gold, EUR/USD, and NAS100 cash CFD quotes. It needs access to TradingView and its data hosts; a blocked connection shows a provider link. Feed delays and availability are controlled by TradingView. See the [widget docs](https://www.tradingview.com/widget-docs/widgets/watchlists/market-overview/) and [data FAQ](https://www.tradingview.com/widget-docs/faq/data/).

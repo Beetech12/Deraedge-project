@@ -14,7 +14,15 @@ function openStore(filename) {
     );
     CREATE TABLE IF NOT EXISTS events (digest TEXT PRIMARY KEY, reference TEXT NOT NULL, kind TEXT NOT NULL, received_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS refunds (refund_id TEXT PRIMARY KEY, reference TEXT NOT NULL, amount INTEGER NOT NULL, status TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS messages (
+      reference TEXT PRIMARY KEY, token_hash TEXT UNIQUE NOT NULL, fingerprint TEXT NOT NULL,
+      content TEXT NOT NULL, status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL, sent_at TEXT, next_attempt INTEGER NOT NULL
+    );
   `);
+  if (!db.prepare('PRAGMA table_info(orders)').all().some(column => column.name === 'payment_mode')) {
+    db.exec("ALTER TABLE orders ADD COLUMN payment_mode TEXT NOT NULL DEFAULT 'test'");
+  }
   return db;
 }
 module.exports = { openStore };

@@ -1,0 +1,74 @@
+const assert = require('node:assert/strict');
+const { chromium } = require('playwright');
+const { configuration } = require('../server/config.cjs');
+const { openStore } = require('../server/store.cjs');
+const { createApp } = require('../server/app.cjs');
+const { createMessages } = require('../server/messages.cjs');
+(async () => {
+  const config = configuration({ PUBLIC_URL: 'http://localhost:3000' });
+  const db = openStore(':memory:');
+  const delivered = [];
+  let reject = false;
+  const messages = createMessages({ db, mailer: { send: async message => {
+    if (reject) throw Object.assign(new Error('Simulated SMTP authentication failure'), { code: 'EAUTH' });
+    delivered.push(message);
+  } } });
+  const server = createApp({ config, db, messages, provider: {} });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  config.publicUrl = base;
+  const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || 'msedge', headless: true });
+  try {
+    const context = await browser.newContext({ reducedMotion: 'reduce' });
+    await context.route('https://**/*', route => route.abort());
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    for (const [route,id] of [['deraedge-contact/index.html','contact-form'],['deraedge-partnership/index.html','partner-form']]) {
+      const before = delivered.length;
+      await page.goto(`${base}/${route}`);
+      const form = page.locator(`#${id}`);
+      await form.locator('[type="submit"]').click();
+      assert.equal(await form.locator('.email-preview').isVisible(), false);
+      for (const input of await form.locator('input[required],textarea[required]').all()) await input.fill(await input.getAttribute('type') === 'email' ? 'customer@example.com' : 'Customer details');
+      if (id === 'partner-form') await page.locator('#contribution-row button').first().click();
+      await form.locator('[type="submit"]').click();
+      assert.equal(delivered.length, before, 'Review cannot send mail');
+      assert.match(await form.locator('.email-preview textarea').inputValue(), /okolochinedu10@gmail\.com/);
+      await form.getByRole('button', { name: 'Edit message', exact: true }).click();
+      assert.equal(await form.locator('.email-preview').isVisible(), false);
+      await form.locator('textarea:not([readonly])').first().fill('Long message automatically sent. '.repeat(100));
+      await form.locator('[type="submit"]').click();
+      await form.locator('.chip').last().click();
+      assert.equal(await form.locator('.email-preview').isVisible(), false);
+      await form.locator('[type="submit"]').click();
+      await page.setViewportSize({ width: 375, height: 812 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      const original = page.url();
+      await form.getByRole('button', { name: 'Send message', exact: true }).click();
+      await page.waitForFunction(id => document.querySelector(`#${id} .form-status`).textContent.includes('was sent to'), id);
+      assert.equal(page.url(), original, 'Sending must not open an email app');
+      assert.equal(delivered.length, before + 1);
+      assert.match(delivered.at(-1).text, /Long message automatically sent/);
+      assert.equal(await form.locator('#email').inputValue(), 'customer@example.com');
+      assert.equal(await form.getByRole('button', { name: 'Send message', exact: true }).isDisabled(), true);
+      await page.reload();
+      await page.waitForFunction(id => document.querySelector(`#${id} .form-status`).textContent.includes('was sent to'), id);
+      assert.equal(delivered.length, before + 1, 'Reload must not send twice');
+      await page.setViewportSize({ width: 1280, height: 900 });
+    }
+    reject = true;
+    await page.goto(`${base}/deraedge-contact/index.html`);
+    await page.waitForFunction(() => document.querySelector('#contact-form .form-status').textContent.includes('was sent to'));
+    await page.getByRole('button', { name: 'Write another message' }).click();
+    await page.fill('#name','Customer'); await page.fill('#email','customer@example.com'); await page.fill('#message','Test failure handling');
+    await page.getByRole('button', { name: 'Review Enquiry' }).click();
+    await page.getByRole('button', { name: 'Send message', exact: true }).click();
+    await page.waitForFunction(() => document.querySelector('#contact-form .form-status').textContent.includes('could not accept'));
+    assert.equal(await page.locator('#message').inputValue(),'Test failure handling');
+    assert.equal(await page.getByRole('button', { name: 'Try sending again' }).isVisible(), true);
+    assert.equal(delivered.length, 2);
+    assert.deepEqual(errors, []);
+    console.log('PASS: both review-to-send flows, automatic delivery, long messages, recipient contents, no email app, reload deduplication, SMTP failure, preserved inputs, and mobile layout. Mock transport only: no real emails sent.');
+  } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); await messages.stop(); db.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

@@ -6,12 +6,12 @@ const { validSignature, checkoutUrl } = require('./paystack.cjs');
 const hash = value => createHash('sha256').update(value).digest('hex');
 const fail = (status, message) => Object.assign(new Error(message), { status });
 const now = () => new Date().toISOString();
-const terminal = new Set(['paid', 'refunded', 'partially_refunded', 'disputed']);
+const terminal = new Set(['paid', 'refunded', 'partially_refunded', 'disputed', 'review']);
 
 function validate(body, config) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) throw fail(400, 'Invalid enrollment.');
   const program = config.catalog[body.program];
-  if (!Object.hasOwn(config.catalog, body.program || '') || !program?.prices[body.currency]) throw fail(400, 'Choose an available program and currency.');
+  if (typeof body.program !== 'string' || typeof body.currency !== 'string' || !Object.hasOwn(config.catalog, body.program) || !Object.hasOwn(program.prices, body.currency)) throw fail(400, 'Choose an available program and currency.');
   if (body.consent !== true || body.policyVersion !== config.policyVersion) throw fail(400, 'Review and accept the current enrollment policies.');
   const customer = {};
   for (const [field, max, required] of [['name',120,true],['email',254,true],['phone',40,false],['country',80,true],['experience',100,false],['start',100,false],['goals',2000,false]]) {
@@ -32,7 +32,7 @@ async function readBody(req, max = 16384) {
   }
   return Buffer.concat(chunks);
 }
-function createApp({ config, db, provider, root = path.resolve(__dirname, '..') }) {
+function createApp({ config, db, provider, messages, root = path.resolve(__dirname, '..') }) {
   const locks = new Map();
   const limits = new Map();
   function rate(req, kind, limit) {
@@ -51,15 +51,17 @@ function createApp({ config, db, provider, root = path.resolve(__dirname, '..') 
   const getOrder = reference => db.prepare('SELECT * FROM orders WHERE reference=?').get(reference);
   function checkTransaction(order, transaction) {
     const customer = JSON.parse(order.customer);
-    if (transaction.reference !== order.reference || transaction.amount !== order.amount || transaction.currency !== order.currency || transaction.customer?.email?.toLowerCase() !== customer.email || (transaction.domain && transaction.domain !== (config.live ? 'live' : 'test'))) throw fail(409, 'Payment details do not match this enrollment. Contact support with your reference.');
+    if (transaction.reference !== order.reference || transaction.amount !== order.amount || transaction.currency !== order.currency || transaction.customer?.email?.toLowerCase() !== customer.email || transaction.domain !== order.payment_mode) throw fail(409, 'Payment details do not match this enrollment. Contact support with your reference.');
   }
   function applyTransaction(order, transaction) {
+    // A webhook may have changed the record while an API verification was in flight.
+    order = getOrder(order.reference);
     checkTransaction(order, transaction);
     if (transaction.status === 'success') {
-      db.prepare("UPDATE orders SET status=CASE WHEN status IN ('refunded','partially_refunded','disputed') THEN status ELSE 'paid' END, paid_at=COALESCE(paid_at,?), transaction_id=?, checked_at=? WHERE reference=?")
+      db.prepare("UPDATE orders SET status=CASE WHEN status IN ('refunded','partially_refunded','disputed','review') THEN status ELSE 'paid' END, paid_at=COALESCE(paid_at,?), transaction_id=?, checked_at=? WHERE reference=?")
         .run(transaction.paid_at || now(), String(transaction.id), Date.now(), order.reference);
     } else if (!terminal.has(order.status)) {
-      const state = ['failed', 'abandoned', 'reversed'].includes(transaction.status) ? 'failed' : 'pending';
+      const state = ['reversed', 'reversal_pending'].includes(transaction.status) ? 'review' : ['failed', 'abandoned'].includes(transaction.status) ? 'failed' : 'pending';
       db.prepare('UPDATE orders SET status=?, checked_at=? WHERE reference=?').run(state, Date.now(), order.reference);
     }
     return getOrder(order.reference);
@@ -67,9 +69,9 @@ function createApp({ config, db, provider, root = path.resolve(__dirname, '..') 
   function summary(order) {
     return { reference: order.reference, program: order.program_name, programId: order.program,
       amount: order.amount, currency: order.currency, status: order.status, createdAt: order.created_at,
-      paidAt: order.paid_at, testMode: !config.live,
+      paidAt: order.paid_at, testMode: order.payment_mode === 'test',
       refundedAmount: db.prepare("SELECT COALESCE(SUM(amount),0) AS total FROM refunds WHERE reference=? AND status='processed'").get(order.reference).total,
-      checkoutUrl: terminal.has(order.status) ? null : order.checkout_url };
+      checkoutUrl: terminal.has(order.status) || order.payment_mode !== (config.live ? 'live' : 'test') ? null : order.checkout_url };
   }
   function authorize(req, reference) {
     const token = req.headers.authorization?.replace(/^Bearer /, '') || '';
@@ -86,11 +88,12 @@ function createApp({ config, db, provider, root = path.resolve(__dirname, '..') 
     const fingerprint = hash(JSON.stringify(input));
     return locked(tokenHash, async () => {
       let order = db.prepare('SELECT * FROM orders WHERE token_hash=?').get(tokenHash);
+      if (order && order.payment_mode !== (config.live ? 'live' : 'test')) throw fail(409, 'This checkout belongs to a different payment mode. Contact admissions.');
       if (order && order.fingerprint !== fingerprint) throw fail(409, 'An earlier checkout uses different details. Check its payment status before starting another enrollment.');
       if (!order) {
         const reference = `dera-${randomBytes(18).toString('hex')}`;
-        db.prepare('INSERT INTO orders(reference,token_hash,fingerprint,program,program_name,amount,currency,customer,policy_version,consent_at,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
-          .run(reference, tokenHash, fingerprint, input.program, input.name, input.amount, input.currency, JSON.stringify(input.customer), config.policyVersion, now(), now());
+        db.prepare('INSERT INTO orders(reference,token_hash,fingerprint,program,program_name,amount,currency,customer,policy_version,consent_at,created_at,payment_mode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)')
+          .run(reference, tokenHash, fingerprint, input.program, input.name, input.amount, input.currency, JSON.stringify(input.customer), config.policyVersion, now(), now(), config.live ? 'live' : 'test');
         order = getOrder(reference);
       }
       if (order.checkout_url || terminal.has(order.status)) return summary(order);
@@ -174,6 +177,22 @@ function createApp({ config, db, provider, root = path.resolve(__dirname, '..') 
       if (pathname.startsWith('/api/')) {
         if (pathname === '/api/paystack/webhook' && req.method === 'POST') return json(res, 200, await webhook(req));
         rate(req, 'api', 120);
+        if (pathname === '/api/messages/config' && req.method === 'GET') return json(res, 200, { enabled: Boolean(messages?.enabled), recipient: 'okolochinedu10@gmail.com' });
+        if (pathname === '/api/messages' && req.method === 'POST') {
+          rate(req, 'messages', 5);
+          if (req.headers.origin !== config.publicUrl || !req.headers['content-type']?.startsWith('application/json')) throw fail(403, 'Send messages from this website.');
+          if (!messages?.enabled) throw fail(503, 'Website sending is not available yet. Your message has not been sent.');
+          let body;
+          try { body = JSON.parse(await readBody(req, 65536)); } catch (error) { throw error.status ? error : fail(400, 'Invalid JSON.'); }
+          const result = messages.enqueue(body, req.headers['idempotency-key']);
+          messages.drain().catch(() => console.error('Message delivery worker failed; check the outbox.'));
+          return json(res, 202, result);
+        }
+        const messageMatch = /^\/api\/messages\/(msg-[a-f0-9]{36})$/.exec(pathname);
+        if (messageMatch && req.method === 'GET') {
+          if (!messages) throw fail(404, 'Message not found.');
+          return json(res, 200, messages.status(messageMatch[1], req.headers.authorization?.replace(/^Bearer /, '')));
+        }
         if (pathname === '/api/catalog' && req.method === 'GET') return json(res, 200, {
           programs: config.catalog, enabled: Boolean(config.ready), testMode: !config.live, policies: config.policies, policyVersion: config.policyVersion,
         });
@@ -188,7 +207,7 @@ function createApp({ config, db, provider, root = path.resolve(__dirname, '..') 
         if (match && req.method === 'GET') {
           let order = authorize(req, match[1]);
           let verificationUnavailable = false;
-          if (!terminal.has(order.status) && Date.now() - order.checked_at >= 15000) {
+          if (order.payment_mode === (config.live ? 'live' : 'test') && !terminal.has(order.status) && Date.now() - order.checked_at >= 15000) {
             order = await locked(`verify:${order.reference}`, async () => {
               const current = getOrder(order.reference);
               if (terminal.has(current.status) || Date.now() - current.checked_at < 15000) return current;

@@ -2,11 +2,18 @@
   "name": "deraedge-website",
   "private": true,
   "version": "1.0.0",
-  "engines": { "node": ">=24.0.0" },
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "start": "node --env-file-if-exists=.env server/start.cjs",
-    "test": "node --test tests/payments.test.cjs",
+    "test": "node --test tests/payments.test.cjs tests/messages.test.cjs",
+    "mail:check": "node --env-file-if-exists=.env server/mail-check.cjs",
+    "test:messages:browser": "node tests/message-browser.cjs",
     "test:browser": "node tests/smoke.cjs",
     "test:payments:browser": "node tests/payment-browser.cjs"
+  },
+  "dependencies": {
+    "nodemailer": "10.0.10"
   }
 }
