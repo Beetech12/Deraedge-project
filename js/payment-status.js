@@ -50,6 +50,7 @@
       if (!resume.hidden) resume.href = order.checkoutUrl;
       if (order.status === 'pending' && ++attempts < 5) timer = setTimeout(check, 15000);
     } catch (error) {
+      title.textContent = 'Payment verification unavailable';
       message.textContent = error.message || 'Unable to check payment. Please try again.';
     } finally { busy = false; refresh.disabled = false; }
   }

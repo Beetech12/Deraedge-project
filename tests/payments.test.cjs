@@ -9,7 +9,7 @@ const { openStore } = require('../server/store.cjs');
 const { createApp } = require('../server/app.cjs');
 const { validSignature, checkoutUrl, paystack } = require('../server/paystack.cjs');
 
-const env = { PUBLIC_URL: 'http://localhost:3000', PAYSTACK_SECRET_KEY: 'sk_test_fixture', PAYMENT_CURRENCIES: 'USD,NGN',
+const env = { PUBLIC_URL: 'http://localhost:3000', PAYSTACK_SECRET_KEY: 'sk_test_fixture', PAYMENT_CURRENCIES: 'USD,NGN', PAYSTACK_CONFIRMED_CURRENCIES: 'USD,NGN',
   PRICE_FOUNDATION_NGN: '15000000', PRICE_PROFESSIONAL_NGN: '30000000', PRICE_MASTERY_NGN: '75000000',
   TERMS_URL: 'https://example.com/terms', PRIVACY_URL: 'https://example.com/privacy', REFUND_URL: 'https://example.com/refunds' };
 const enrollment = { program: 'professional', currency: 'USD', name: 'Test Student', email: 'student@example.com', country: 'Nigeria', consent: true, policyVersion: '1' };
@@ -61,6 +61,27 @@ test('currencies are explicit; naira is never derived from an invented FX rate',
   assert.throws(() => configuration({ ...env, PRICE_FOUNDATION_NGN: '-1' }));
   assert.throws(() => configuration({ ...env, PAYSTACK_SECRET_KEY: 'sk_live_fixture' }));
   assert.throws(() => configuration({ ...env, PRIVACY_URL: 'javascript:alert(1)' }));
+});
+test('local policies resolve on the site origin without allowing insecure production policies', () => {
+  assert.equal(configuration({ ...env, TERMS_URL: '/deraedge-enroll/terms.html' }).policies.terms, 'http://localhost:3000/deraedge-enroll/terms.html');
+  assert.throws(() => configuration({ ...env, TERMS_URL: 'http://example.com/terms' }));
+  assert.throws(() => configuration({ ...env, PUBLIC_URL: 'http://example.com', TERMS_URL: '/terms' }));
+  assert.throws(() => configuration({ ...env, TERMS_URL: 'https://user:password@example.com/terms' }));
+  assert.equal(configuration({ ...env, PUBLIC_URL: 'https://example.com', TERMS_URL: '/terms' }).policies.terms, 'https://example.com/terms');
+});
+test('all enrollment policy pages are served and a configured NGN checkout is enabled', async t => {
+  const f = await fixture(t, { config: configuration({ ...env, PAYMENT_CURRENCIES: 'NGN', TERMS_URL: '/deraedge-enroll/terms.html', PRIVACY_URL: '/deraedge-enroll/privacy.html', REFUND_URL: '/deraedge-enroll/refund.html' }) });
+  const catalog = await fetch(`${f.base}/api/catalog`).then(r => r.json());
+  assert.equal(catalog.enabled, true);
+  assert.deepEqual(Object.keys(catalog.programs.foundation.prices), ['NGN']);
+  for (const name of ['terms', 'privacy', 'refund']) {
+    const response = await fetch(`${f.base}${new URL(catalog.policies[name]).pathname}`);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-type'), /text\/html/);
+  }
+  const result = await f.checkout({ ...enrollment, currency: 'NGN' });
+  assert.equal(result.status, 200);
+  assert.ok(checkoutUrl(result.data.checkoutUrl));
 });
 test('price tampering is ignored, consent required, and checkout requests must be same-origin', async t => {
   const f = await fixture(t);
@@ -207,4 +228,83 @@ test('a reversed transaction never offers another payment checkout', async t => 
   const result = (await f.status(order.reference)).data;
   assert.equal(result.status, 'review');
   assert.equal(result.checkoutUrl, null);
+});
+
+test('all requested currencies require complete prices and confirmed provider support', () => {
+  const unsupported = configuration({ ...env, PAYSTACK_CONFIRMED_CURRENCIES: 'USD' });
+  assert.equal(unsupported.ready, false);
+  assert.deepEqual(unsupported.currencies, ['USD']);
+  assert.equal(unsupported.catalog.foundation.prices.NGN, undefined);
+  const incomplete = configuration({ ...env, PRICE_MASTERY_NGN: '' });
+  assert.equal(incomplete.ready, false);
+  assert.equal(incomplete.catalog.foundation.prices.NGN, undefined);
+  const usd = configuration({ ...env, PAYMENT_CURRENCIES: 'USD', PAYSTACK_CONFIRMED_CURRENCIES: 'USD' });
+  assert.equal(usd.ready, true);
+  assert.deepEqual(Object.values(usd.catalog).map(p => p.prices.USD), [10000, 20000, 50000]);
+});
+
+test('environment loader preserves shell values and tolerates an absent file', () => {
+  const { writeFileSync, unlinkSync } = require('node:fs');
+  const { spawnSync } = require('node:child_process');
+  const file = path.join(os.tmpdir(), `dera-env-${randomBytes(8).toString('hex')}`);
+  const loader = path.resolve(__dirname, '../server/env.cjs');
+  try {
+    writeFileSync(file, 'DERA_ENV_TEST=from-file\nDERA_ENV_OTHER=loaded\n');
+    const result = spawnSync(process.execPath, ['-e', `require(${JSON.stringify(loader)}).loadEnvironment(${JSON.stringify(file)}); if (process.env.DERA_ENV_TEST !== 'from-shell' || process.env.DERA_ENV_OTHER !== 'loaded') process.exit(1);`], {
+      env: { ...process.env, DERA_ENV_TEST: 'from-shell' }, encoding: 'utf8',
+    });
+    assert.equal(result.status, 0);
+    require(loader).loadEnvironment(file + '-missing');
+  } finally { unlinkSync(file); }
+});
+
+test('direct startup loads configuration and serves catalog and policy routes', async t => {
+  const { spawn } = require('node:child_process');
+  const child = spawn(process.execPath, [path.resolve(__dirname, '../server/start.cjs')], {
+    cwd: os.tmpdir(),
+    env: { ...process.env, PORT: '0', HOST: '127.0.0.1', PUBLIC_URL: 'http://localhost:3000', DATABASE_PATH: ':memory:', DATABASE_URL: '', VERCEL: '',
+      PAYSTACK_SECRET_KEY: '', PAYMENT_CURRENCIES: 'USD', PAYSTACK_CONFIRMED_CURRENCIES: '',
+      TERMS_URL: '/deraedge-enroll/terms.html', PRIVACY_URL: '/deraedge-enroll/privacy.html', REFUND_URL: '/deraedge-enroll/refund.html',
+      SMTP_PASSWORD: '', SMTP_USER: '' }, stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  t.after(() => child.kill());
+  const port = await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Server startup timed out')), 10000);
+    child.once('exit', () => { clearTimeout(timer); reject(new Error('Server exited before listening')); });
+    child.stdout.on('data', chunk => {
+      const match = /Listening on port (\d+)/.exec(chunk.toString());
+      if (match) { clearTimeout(timer); resolve(match[1]); }
+    });
+    child.once('error', reject);
+  });
+  const base = `http://127.0.0.1:${port}`;
+  const catalog = await fetch(`${base}/api/catalog`).then(r => r.json());
+  assert.equal(catalog.enabled, false);
+  assert.equal(catalog.programs.professional.prices.USD, 20000);
+  assert.deepEqual(catalog.currencies, []);
+  for (const policy of ['terms', 'privacy', 'refund']) assert.equal((await fetch(`${base}/deraedge-enroll/${policy}.html`)).status, 200);
+});
+
+test('disabling checkout also hides previously issued checkout links', async t => {
+  const f = await fixture(t);
+  const order = (await f.checkout()).data;
+  f.config.ready = false;
+  assert.equal((await f.status(order.reference)).data.checkoutUrl, null);
+  assert.equal((await f.checkout()).status, 503);
+});
+
+test('frontend API uses the site origin and reports timeouts without hanging', async () => {
+  const vm = require('node:vm');
+  const source = require('node:fs').readFileSync(path.resolve(__dirname, '../js/payments-client.js'), 'utf8');
+  const context = {
+    window: {}, location: { href: 'http://localhost:3000/deraedge-enroll/index.html' },
+    URL, AbortController, TypeError, Intl,
+    setTimeout: callback => setTimeout(callback, 5), clearTimeout,
+    fetch: (url, options) => {
+      assert.equal(url.href, 'http://localhost:3000/api/catalog');
+      return new Promise((resolve, reject) => options.signal.addEventListener('abort', () => reject(new Error('aborted'))));
+    },
+  };
+  vm.runInNewContext(source, context);
+  await assert.rejects(context.window.DeraPayments.request('api/catalog'), /timed out/);
 });

@@ -3,17 +3,42 @@
   "private": true,
   "version": "1.0.0",
   "engines": {
-    "node": ">=24.0.0"
+    "node": "24.x"
   },
   "scripts": {
-    "start": "node --env-file-if-exists=.env server/start.cjs",
-    "test": "node --test tests/payments.test.cjs tests/messages.test.cjs",
+    "start": "node server/start.cjs",
+    "test": "node --test tests/payments.test.cjs tests/messages.test.cjs tests/hosting.test.cjs",
     "mail:check": "node --env-file-if-exists=.env server/mail-check.cjs",
+    "payments:check": "node server/payment-check.cjs",
     "test:messages:browser": "node tests/message-browser.cjs",
     "test:browser": "node tests/smoke.cjs",
-    "test:payments:browser": "node tests/payment-browser.cjs"
+    "test:payments:browser": "node tests/payment-browser.cjs",
+    "build": "node scripts/build-static.cjs",
+    "deployment:check": "node server/deployment-check.cjs"
   },
   "dependencies": {
-    "nodemailer": "10.0.10"
+    "express": "^5.2.1",
+    "nodemailer": "10.0.10",
+    "pg": "^8.23.0"
+  },
+  "description": "HTML, CSS and JavaScript website with a Node.js 24 backend, Paystack checkout, local SQLite or Vercel Postgres, and SMTP messaging.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "homepage": "https://github.com/Beetech12/Deraedge-project#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Beetech12/Deraedge-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Beetech12/Deraedge-project/issues"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8"
   }
 }

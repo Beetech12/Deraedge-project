@@ -138,12 +138,13 @@
 
             <div class="field payment-currency">
               <label for="currency">Payment currency</label>
-              <select id="currency" name="currency" disabled><option value="USD">USD — US Dollar</option><option value="NGN" disabled>NGN — currently unavailable</option></select>
+              <select id="currency" name="currency" disabled><option value="">Loading currency...</option></select>
               <p class="small muted">Only configured currencies are available. Your bank may apply currency conversion charges.</p>
             </div>
+            <p class="small muted"><a href="terms.html">Terms and Conditions</a></p>
             <div id="payment-policies" hidden>
               <label class="payment-consent"><input type="checkbox" id="consent" name="consent" required />
-                <span>I agree to the <a id="terms-link" target="_blank" rel="noopener noreferrer">enrollment terms</a> and <a id="refund-link" target="_blank" rel="noopener noreferrer">refund policy</a>, and have read the <a id="privacy-link" target="_blank" rel="noopener noreferrer">privacy notice</a>.</span>
+                <span>I confirm that I am at least 18 years old, agree to the <a id="terms-link" target="_blank" rel="noopener noreferrer">enrollment terms</a> and <a id="refund-link" target="_blank" rel="noopener noreferrer">refund policy</a>, and have read the <a id="privacy-link" target="_blank" rel="noopener noreferrer">privacy notice</a>.</span>
               </label>
             </div>
             <button type="submit" disabled class="btn btn-gold" id="submit-btn">Checkout unavailable</button>

@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Deraedge: Website and Payments",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--env-file-if-exists=.env"],
+      "program": "${workspaceFolder}/server/start.cjs",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "skipFiles": ["<node_internals>/**"],
+      "serverReadyAction": {
+        "pattern": "Deraedge server: (https?://\\S+?)\\. Payments:",
+        "uriFormat": "%s/deraedge-enroll/index.html",
+        "action": "openExternally"
+      }
+    }
+  ]
+}

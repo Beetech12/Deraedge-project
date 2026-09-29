@@ -7,7 +7,7 @@ const path = require('node:path');
 const os = require('node:os');
 
 (async () => {
-  const config = configuration({ PUBLIC_URL: 'http://localhost:3000', PAYSTACK_SECRET_KEY: 'sk_test_browser_fixture', PAYMENT_CURRENCIES: 'USD,NGN',
+  const config = configuration({ PUBLIC_URL: 'http://localhost:3000', PAYSTACK_SECRET_KEY: 'sk_test_browserfixture', PAYMENT_CURRENCIES: 'USD,NGN', PAYSTACK_CONFIRMED_CURRENCIES: 'USD,NGN',
     PRICE_FOUNDATION_NGN: '15000000', PRICE_PROFESSIONAL_NGN: '30000000', PRICE_MASTERY_NGN: '75000000',
     TERMS_URL: 'https://example.com/terms', PRIVACY_URL: 'https://example.com/privacy', REFUND_URL: 'https://example.com/refund' });
   const db = openStore(':memory:');
@@ -108,6 +108,23 @@ const os = require('node:os');
     await page.goto(`${base}/deraedge-enroll/index.html`);
     await page.waitForFunction(() => document.getElementById('checkout-status').textContent.includes('not available'));
     assert.equal(await page.locator('#submit-btn').isDisabled(), true);
+    await page.route('**/api/catalog', route => route.fulfill({ status: 404, contentType: 'text/html', body: '<h1>Static server</h1>' }));
+    await page.goto(`${base}/deraedge-enroll/index.html`);
+    await page.waitForFunction(() => document.getElementById('checkout-status').textContent.includes('did not return JSON'));
+    assert.equal(await page.locator('#currency').textContent(), 'Currency unavailable - reload to retry');
+    assert.equal(await page.locator('#submit-btn').isDisabled(), true);
+    await page.unroute('**/api/catalog');
+    await page.route('**/api/catalog', route => route.abort());
+    await page.reload();
+    await page.waitForFunction(() => document.getElementById('checkout-status').textContent.includes('Cannot reach'));
+    assert.equal(await page.locator('#submit-btn').isDisabled(), true);
+    await page.unroute('**/api/catalog');
+    const oldCurrencies = config.currencies;
+    config.currencies = [];
+    await page.reload();
+    await page.waitForFunction(() => document.getElementById('currency').textContent.includes('No payment currencies'));
+    assert.equal(await page.locator('#submit-btn').isDisabled(), true);
+    config.currencies = oldCurrencies;
     assert.deepEqual(errors, []);
     console.log('PASS: Academy NGN pricing, enrollment validation and consent, hosted-checkout redirect, verified receipt, reload recovery, private lookup, provider timeout, unconfigured checkout, and mobile layout. No real charges made.');
     console.log(`Screenshots: ${path.join(os.tmpdir(), 'dera-checkout-mobile.png')} and ${path.join(os.tmpdir(), 'dera-payment-confirmed.png')}`);

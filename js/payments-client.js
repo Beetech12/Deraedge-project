@@ -1,11 +1,20 @@
 window.DeraPayments = (() => {
-  const root = new URL('../', document.currentScript.src);
+  const root = new URL('/', location.href);
   async function request(route, options = {}) {
-    const response = await fetch(new URL(route, root), { ...options, signal: AbortSignal.timeout(20000), cache: 'no-store' });
-    if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('Online checkout is unavailable. Please contact admissions.');
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Unable to connect. Please try again.');
-    return data;
+    if (!['http:', 'https:'].includes(root.protocol)) throw new Error('Open the website through the Node server at http://localhost:3000.');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    try {
+      const response = await fetch(new URL(route, root), { ...options, signal: controller.signal, cache: 'no-store' });
+      if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('The payment API did not return JSON. Open this page through the Node server, not a static preview server.');
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to connect. Please try again.');
+      return data;
+    } catch (error) {
+      if (controller.signal.aborted) throw new Error('The payment server timed out. Reload to retry.');
+      if (error instanceof TypeError) throw new Error('Cannot reach the payment server. Check your connection and reload.');
+      throw error;
+    } finally { clearTimeout(timeout); }
   }
   function save(value) {
     // Only the private lookup token and reference are saved, never enrollment/card details.

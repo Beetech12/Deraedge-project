@@ -109,17 +109,18 @@
   currencyPicker.addEventListener('change', () => { currency = currencyPicker.value; paymentLinks(); renderCurriculum(); });
   api.request('api/catalog').then(data => {
     catalog = data;
-    const currencies = [...new Set(Object.values(data.programs).flatMap(p => Object.keys(p.prices)))];
+    const currencies = data.currencies;
+    if (!Array.isArray(currencies)) throw new Error('Invalid payment catalog. Reload or contact admissions.');
     currencyPicker.replaceChildren();
-    for (const code of ['USD', 'NGN']) {
-      const option = new Option(`${code}${currencies.includes(code) ? '' : ' — unavailable'}`, code);
-      option.disabled = !currencies.includes(code);
+    for (const code of currencies) {
+      const option = new Option(code, code);
       currencyPicker.add(option);
     }
+    if (!currencies.length) currencyPicker.add(new Option('Currencies unavailable', ''));
     currency = currencies[0] || 'USD';
-    currencyPicker.value = currency;
+    currencyPicker.value = currencies.length ? currency : '';
     currencyPicker.disabled = currencies.length < 2;
     document.getElementById('academy-payment-note').textContent = data.enabled ? (data.testMode ? 'Test checkout is enabled. No real payment will be collected.' : 'Secure payment through Paystack. Review your details at enrollment.') : 'Online payment is not available yet. Contact admissions for enrollment.';
     paymentLinks(); renderCurriculum();
-  }).catch(() => { document.getElementById('academy-payment-note').textContent = 'Online payment is unavailable. Contact admissions for enrollment.'; });
+  }).catch(error => { currencyPicker.replaceChildren(new Option('Currencies unavailable', '')); currencyPicker.disabled = true; document.getElementById('academy-payment-note').textContent = error.message; });
 })();

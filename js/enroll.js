@@ -42,22 +42,29 @@
   update();
   api.request('api/catalog').then(data => {
     catalog = data;
-    const currencies = [...new Set(Object.values(data.programs).flatMap(p => Object.keys(p.prices)))];
+    const currencies = data.currencies;
+    if (!Array.isArray(currencies)) throw new Error('Invalid payment catalog. Reload or contact admissions.');
     currency.replaceChildren();
-    for (const code of ['USD', 'NGN']) {
-      const option = new Option(`${code} — ${code === 'USD' ? 'US Dollar' : 'Nigerian Naira'}${currencies.includes(code) ? '' : ' (unavailable)'}`, code);
-      option.disabled = !currencies.includes(code);
+    for (const code of currencies) {
+      const option = new Option(`${code} — ${code === 'USD' ? 'US Dollar' : 'Nigerian Naira'}`, code);
       currency.add(option);
     }
-    currency.value = currencies.includes(params.get('currency')) ? params.get('currency') : currencies[0] || 'USD';
+    if (!currencies.length) currency.add(new Option('No payment currencies available', ''));
+    currency.value = currencies.includes(params.get('currency')) ? params.get('currency') : currencies[0] || '';
     currency.disabled = currencies.length < 2;
     const policyReady = Object.values(data.policies).every(Boolean);
     document.getElementById('payment-policies').hidden = !policyReady;
     for (const type of ['terms','privacy','refund']) if (data.policies[type]) document.getElementById(`${type}-link`).href = data.policies[type];
     document.getElementById('test-payment-note').hidden = !data.enabled || !data.testMode;
-    status.textContent = data.enabled ? 'Review your details and total before continuing to Paystack.' : 'Online payment is not available yet. Please contact admissions to enroll.';
+    status.textContent = data.enabled ? 'Review your details and total before continuing to Paystack.' : `Online payment is not available yet. ${(data.issues || []).join(' ')} Contact admissions to enroll.`;
     update();
-  }).catch(() => { status.textContent = 'Online payment is currently unavailable. Please contact admissions to enroll.'; });
+  }).catch(error => {
+    catalog = null;
+    currency.replaceChildren(new Option('Currency unavailable - reload to retry', ''));
+    currency.disabled = true;
+    status.textContent = error.message || 'Unable to load payment currencies. Reload or contact admissions.';
+    update();
+  });
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (busy || !catalog?.enabled || !form.reportValidity()) return;

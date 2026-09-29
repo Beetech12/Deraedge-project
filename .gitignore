@@ -9,3 +9,5 @@ node_modules/
 *.sqlite-wal
 playwright-report/
 test-results/
+public/
+.vercel/

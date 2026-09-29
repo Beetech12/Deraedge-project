@@ -23,6 +23,10 @@ function openStore(filename) {
   if (!db.prepare('PRAGMA table_info(orders)').all().some(column => column.name === 'payment_mode')) {
     db.exec("ALTER TABLE orders ADD COLUMN payment_mode TEXT NOT NULL DEFAULT 'test'");
   }
+  if (!db.prepare('PRAGMA table_info(orders)').all().some(column => column.name === 'initialize_until')) {
+    db.exec('ALTER TABLE orders ADD COLUMN initialize_until INTEGER NOT NULL DEFAULT 0');
+  }
+  db.exec('CREATE TABLE IF NOT EXISTS api_limits (key TEXT PRIMARY KEY, window_start INTEGER NOT NULL, count INTEGER NOT NULL)');
   return db;
 }
 module.exports = { openStore };

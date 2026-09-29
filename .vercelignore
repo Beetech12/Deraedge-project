@@ -1,0 +1,11 @@
+.env
+.env.*
+.data/
+.git/
+.vscode/
+node_modules/
+public/
+tests/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

@@ -1,4 +1,5 @@
 const { createHash, randomBytes, timingSafeEqual } = require('node:crypto');
+const { asynchronousStore } = require('./database.cjs');
 const { recipient } = require('./mail.cjs');
 const digest = value => createHash('sha256').update(value).digest('hex');
 const error = (status, message) => Object.assign(new Error(message), { status });
@@ -29,52 +30,55 @@ function validateMessage(body) {
     text: definitions.map(([key,label]) => `${label}: ${fields[key] || '(not provided)'}`).join('\n\n') };
 }
 
-function createMessages({ db, mailer, clock = Date.now }) {
+function createMessages({ db, mailer, clock = Date.now, batchSize = 10 }) {
   // SMTP has no universal idempotency key. A process interruption during send
   // needs review, rather than blindly resending an email that may be accepted.
-  db.prepare("UPDATE messages SET status='unknown' WHERE status='sending'").run();
+  db = asynchronousStore(db);
   let running;
   let timer;
   let stopped = false;
   const summary = row => ({ reference: row.reference, status: row.status, recipient });
-  function enqueue(body, key) {
+  async function enqueue(body, key) {
     if (!mailer) throw error(503, 'Website sending is not available yet. Your message has not been sent; please try again later.');
     if (!/^[a-f0-9]{64}$/.test(key || '')) throw error(400, 'Invalid message key. Reload this page.');
     const message = validateMessage(body);
     const fingerprint = digest(JSON.stringify(message));
     const keyHash = digest(key);
-    const previous = db.prepare('SELECT * FROM messages WHERE token_hash=?').get(keyHash);
+    const previous = await db.prepare('SELECT * FROM messages WHERE token_hash=?').get(keyHash);
     if (previous) {
       if (previous.fingerprint !== fingerprint) throw error(409, 'This message changed after submission. Check its status before sending another message.');
       return summary(previous);
     }
     const reference = `msg-${randomBytes(18).toString('hex')}`;
-    db.prepare('INSERT INTO messages(reference,token_hash,fingerprint,content,status,created_at,next_attempt) VALUES(?,?,?,?,?,?,?)')
+    await db.prepare('INSERT INTO messages(reference,token_hash,fingerprint,content,status,created_at,next_attempt) VALUES(?,?,?,?,?,?,?) ON CONFLICT(token_hash) DO NOTHING')
       .run(reference, keyHash, fingerprint, JSON.stringify(message), 'queued', new Date(clock()).toISOString(), clock());
-    return { reference, status: 'queued', recipient };
+    const stored = await db.prepare('SELECT * FROM messages WHERE token_hash=?').get(keyHash);
+    if (stored.fingerprint !== fingerprint) throw error(409, 'This message changed after submission. Check its status.');
+    return summary(stored);
   }
-  function status(reference, token) {
-    const row = db.prepare('SELECT * FROM messages WHERE reference=?').get(reference);
+  async function status(reference, token) {
+    const row = await db.prepare('SELECT * FROM messages WHERE reference=?').get(reference);
     if (!row || !/^[a-f0-9]{64}$/.test(token || '') || !timingSafeEqual(Buffer.from(row.token_hash, 'hex'), Buffer.from(digest(token), 'hex'))) throw error(404, 'Message not found.');
     return summary(row);
   }
   async function deliver() {
     if (!mailer || stopped) return;
-    const due = db.prepare("SELECT * FROM messages WHERE status='queued' AND next_attempt<=? ORDER BY created_at LIMIT 10").all(clock());
+    await db.prepare("UPDATE messages SET status='unknown' WHERE status='sending' AND next_attempt<=?").run(clock());
+    const due = await db.prepare("SELECT * FROM messages WHERE status='queued' AND next_attempt<=? ORDER BY created_at LIMIT ?").all(clock(), batchSize);
     for (const row of due) {
       if (stopped) break;
-      const claimed = db.prepare("UPDATE messages SET status='sending',attempts=attempts+1 WHERE reference=? AND status='queued'").run(row.reference);
+      const claimed = await db.prepare("UPDATE messages SET status='sending',attempts=attempts+1,next_attempt=? WHERE reference=? AND status='queued'").run(clock() + 120000, row.reference);
       if (!claimed.changes) continue;
       try {
         await mailer.send({ ...JSON.parse(row.content), reference: row.reference });
-        db.prepare("UPDATE messages SET status='sent',sent_at=? WHERE reference=?").run(new Date(clock()).toISOString(), row.reference);
+        await db.prepare("UPDATE messages SET status='sent',sent_at=? WHERE reference=?").run(new Date(clock()).toISOString(), row.reference);
       } catch (failure) {
         const temporary = (failure.responseCode >= 400 && failure.responseCode < 500) || ['ECONNECTION','EDNS'].includes(failure.code);
         const rejected = ['EAUTH','ETLS','EENVELOPE'].includes(failure.code) || failure.responseCode >= 500;
         const attempts = row.attempts + 1;
         const retry = temporary && attempts < 5;
         const state = retry ? 'queued' : temporary || rejected ? 'failed' : 'unknown';
-        db.prepare('UPDATE messages SET status=?,next_attempt=? WHERE reference=?').run(state, clock() + Math.min(600000, 30000 * 2 ** attempts), row.reference);
+        await db.prepare('UPDATE messages SET status=?,next_attempt=? WHERE reference=?').run(state, clock() + Math.min(600000, 30000 * 2 ** attempts), row.reference);
       }
     }
   }

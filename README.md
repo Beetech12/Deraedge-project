@@ -1,19 +1,23 @@
 # Deraedge website
 
-HTML, CSS, and JavaScript frontend with a Node.js 24+ server. No frontend framework or build step is required. Enrollment uses Paystack; reviewed Contact and Partnership messages are sent directly by the server over SMTP.
+HTML, CSS, and JavaScript frontend with a Node.js 24+ server. No frontend framework is required. Vercel uses a public-file copy build. Enrollment uses Paystack; reviewed Contact and Partnership messages are sent directly by the server over SMTP.
+
+For the naira-only Vercel deployment, follow [VERCEL-SETUP.md](VERCEL-SETUP.md). It uses persistent Postgres; do not deploy local SQLite to Vercel.
 
 ## Run locally
 
+In VS Code, select **Run and Debug > Deraedge: Website and Payments** and press **F5** (or **Ctrl+F5** without debugging). This starts the Node server, loads `.env`, and opens enrollment on port 3000. Stop an existing server on that port before launching another. The Live Server extension's **Go Live** button only serves static files on port 5501 and cannot run the payment or email APIs.
+
 Install dependencies with `pnpm install --frozen-lockfile` (or `npm install`), run `npm start` from the project directory, and open `http://localhost:3000/`. The server works without credentials; payment checkout and email delivery are visibly unavailable until their respective settings are configured. Node.js 24+ is required for the built-in SQLite database. Nodemailer is used for server-side SMTP.
 
-For payment configuration, copy `.env.example` to `.env` and set values privately. Do not put secret keys in browser JavaScript or commit `.env`. Use the Node server, not a generic static server: the Node server explicitly prevents public access to secrets, database files, server code, and tests.
+For payment configuration, copy `.env.example` to `.env` only if `.env` does not already exist, and set values privately. Do not put secret keys in browser JavaScript or commit `.env`. Use the Node server, not a generic static server: the Node server explicitly prevents public access to secrets, database files, server code, and tests.
 
 ## Payment features
 
 - Academy and enrollment read the server catalog and support configured USD/NGN prices.
 - Server-side input validation, policy consent recording, and price calculation; client amounts are ignored.
 - Paystack hosted checkout, with all payment methods supported by the merchant's account shown by Paystack. Card details never pass through this application.
-- Persistent SQLite enrollment/order records, random payment references, and private lookup tokens stored only in the initiating browser session.
+- Persistent SQLite (local) or Postgres (Vercel) enrollment/order records, random payment references, and private lookup tokens stored only in the initiating browser session.
 - Repeated checkout requests reuse the same order and Paystack reference. An uncertain initialization never blindly generates another charge.
 - Raw-body HMAC-SHA512 webhook verification; amount, currency, reference, customer email, and provider mode checks before confirming payment.
 - Payment verification on return, bounded status polling, pending/failed states, cancellation recovery, same-checkout retry, and a printable payment confirmation.
@@ -24,10 +28,12 @@ The receipt is a payment confirmation, not a tax invoice. Payment does not autom
 
 ## Paystack setup
 
+Run `npm run payments:check` after changing `.env` to list missing settings and verify the key with a read-only Paystack request. It does not create payments or display secrets. Restart `npm start` after configuration changes.
+
 1. Use a **test secret key** from your Paystack dashboard in `PAYSTACK_SECRET_KEY`. No public key is needed for this hosted redirect integration.
 2. Set `PUBLIC_URL` to the website's exact origin. Local default: `http://localhost:3000`. The API and frontend must share the same origin; deploy the payment app at the domain root.
-3. Set `PAYMENT_CURRENCIES` to currencies activated on your Paystack account. USD prices default to the existing $100/$200/$500. **NGN has no production prices yet**. Add approved fixed prices as integer kobo in the three `PRICE_*_NGN` settings and add `NGN` to `PAYMENT_CURRENCIES` when ready. No automatic exchange rate is used. Browser-test naira prices are fixtures only, not business prices.
-4. Set `TERMS_URL`, `PRIVACY_URL`, and `REFUND_URL` to your actual published HTTPS policy pages. Set `POLICY_VERSION` when policies change. Checkout stays disabled without the policies, a key, and at least one configured price.
+3. Set `PAYMENT_CURRENCIES` to currencies activated on your Paystack account. USD prices default to the existing $100/$200/$500. NGN has no built-in default prices. Add approved fixed prices as integer kobo in the three `PRICE_*_NGN` settings and add `NGN` to both `PAYMENT_CURRENCIES` and `PAYSTACK_CONFIRMED_CURRENCIES` when ready. For a naira-only account, use only NGN in both lists. No automatic exchange rate is used. Browser-test naira prices are fixtures only, not business prices.
+4. Set `TERMS_URL`, `PRIVACY_URL`, and `REFUND_URL` to your actual published HTTPS policy pages. Set `POLICY_VERSION` when policies change. Checkout stays disabled without the policies, a key, complete prices and confirmed provider support for every requested currency.
 5. Set the Paystack webhook URL to `https://YOUR-DOMAIN/api/paystack/webhook`. For local provider tests, use an HTTPS tunnel that forwards to this server and use the tunnel origin as `PUBLIC_URL`. Enable both test and live webhook settings in the respective Paystack modes.
 6. In Paystack, configure customer receipts and merchant payment notifications. These emails are sent by Paystack; this app does not send its own emails. Refunds and disputes are managed in the Paystack dashboard, with updates reflected in local order records via webhooks.
 7. Complete Paystack sandbox checks for success, failed payment, cancellation, repeat clicks, pending payments, refund, and webhook retries. Automated repository tests use an injected fake provider and do not prove that your merchant account accepts USD or has been activated.
@@ -39,7 +45,7 @@ Nigeria-based businesses can accept USD only when their Paystack account has the
 
 Deploy on a Node.js 24+ host with **persistent disk** for `DATABASE_PATH` (default `.data/enrollments.sqlite`), HTTPS, outbound access to `api.paystack.co`, and inbound Paystack webhooks. Set `HOST=0.0.0.0` if required by your host. Keep the database outside any independently served static directory. Back it up using SQLite-aware backups and restrict filesystem access: it contains student names, email addresses, enrollment details, and policy consent records. Define an appropriate retention process for these records.
 
-Use one Node server instance with this SQLite implementation. Ephemeral/serverless filesystems and multiple horizontally scaled instances require a shared database and shared rate limiter before deployment. The built-in limiter deliberately uses the socket address rather than trusting spoofable proxy headers; configure per-client rate limiting at a trusted reverse proxy in production. Do not rewrite the Paystack webhook body before signature validation.
+Use one Node server instance with this SQLite implementation. For Vercel, use the included Postgres adapter and shared database rate limiter described in VERCEL-SETUP.md. The built-in limiter deliberately uses the socket address rather than trusting spoofable proxy headers; configure per-client rate limiting at a trusted reverse proxy in production. Do not rewrite the Paystack webhook body before signature validation.
 
 Operator commands (run privately on the server):
 
