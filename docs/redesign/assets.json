@@ -1,0 +1,141 @@
+{
+  "checkedOn": "2026-10-02",
+  "license": "https://www.pexels.com/license/",
+  "usage": "Website illustration. No depicted person, organization or building is represented as Deraedge staff, premises, partner or endorser. Photographed charts are not live data or Deraedge performance.",
+  "photos": [
+    {
+      "title": "Sunset View of Exchange Building Exterior",
+      "creator": "Ninh Tien Dat",
+      "url": "https://www.pexels.com/photo/sunset-view-of-exchange-building-exterior-29244718/",
+      "download": "https://images.pexels.com/photos/29244718/pexels-photo-29244718.jpeg",
+      "files": [
+        {
+          "file": "asset/institution-city.jpg",
+          "bytes": 81707
+        },
+        {
+          "file": "asset/institution-city.webp",
+          "bytes": 40936
+        },
+        {
+          "file": "asset/institution-city-small.webp",
+          "bytes": 9474
+        }
+      ]
+    },
+    {
+      "title": "Close-up Photo of Monitor",
+      "creator": "energepic.com",
+      "url": "https://www.pexels.com/photo/close-up-photo-of-monitor-159888/",
+      "download": "https://images.pexels.com/photos/159888/pexels-photo-159888.jpeg",
+      "files": [
+        {
+          "file": "asset/institution-markets.jpg",
+          "bytes": 90276
+        },
+        {
+          "file": "asset/institution-markets.webp",
+          "bytes": 41654
+        },
+        {
+          "file": "asset/institution-markets-small.webp",
+          "bytes": 10558
+        }
+      ]
+    },
+    {
+      "title": "Oil Well at Sunset",
+      "creator": "Jan Zakelj",
+      "url": "https://www.pexels.com/photo/oil-well-at-sunset-16862261/",
+      "download": "https://images.pexels.com/photos/16862261/pexels-photo-16862261.jpeg",
+      "files": [
+        {
+          "file": "asset/institution-energy.jpg",
+          "bytes": 26133
+        },
+        {
+          "file": "asset/institution-energy.webp",
+          "bytes": 13738
+        },
+        {
+          "file": "asset/institution-energy-small.webp",
+          "bytes": 9252
+        }
+      ]
+    },
+    {
+      "title": "People Discuss About Graphs and Rates",
+      "creator": "fauxels",
+      "url": "https://www.pexels.com/photo/people-discuss-about-graphs-and-rates-3184292/",
+      "download": "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg",
+      "files": [
+        {
+          "file": "asset/institution-partnership.jpg",
+          "bytes": 78583
+        },
+        {
+          "file": "asset/institution-partnership.webp",
+          "bytes": 45166
+        },
+        {
+          "file": "asset/institution-partnership-small.webp",
+          "bytes": 14182
+        }
+      ]
+    },
+    {
+      "title": "Trader Looking at Charts in the Monitors",
+      "creator": "AlphaTradeZone",
+      "url": "https://www.pexels.com/photo/trader-looking-at-charts-in-the-monitors-5831253/",
+      "download": "https://images.pexels.com/photos/5831253/pexels-photo-5831253.jpeg",
+      "files": [
+        {
+          "file": "asset/institution-trader.jpg",
+          "bytes": 98524
+        },
+        {
+          "file": "asset/institution-trader.webp",
+          "bytes": 50094
+        },
+        {
+          "file": "asset/institution-trader-small.webp",
+          "bytes": 14358
+        }
+      ]
+    },
+    {
+      "title": "New York Stock Exchange Facade with Columns",
+      "creator": "Vincent Rivaud",
+      "url": "https://www.pexels.com/photo/new-york-stock-exchange-facade-with-columns-28962712/",
+      "download": "https://images.pexels.com/photos/28962712/pexels-photo-28962712.jpeg",
+      "files": [
+        {
+          "file": "asset/institution-exchange.jpg",
+          "bytes": 216660
+        },
+        {
+          "file": "asset/institution-exchange.webp",
+          "bytes": 170836
+        },
+        {
+          "file": "asset/institution-exchange-small.webp",
+          "bytes": 62258
+        }
+      ]
+    }
+  ],
+  "video": {
+    "title": "Crowded City Center",
+    "creator": "Sebastian Feistl",
+    "url": "https://www.pexels.com/video/crowded-city-center-6025488/",
+    "file": "asset/hero-finance.mp4",
+    "bytes": 3060852,
+    "details": "Previously optimized local asset; 12 seconds, 1280x720, 24fps, silent H.264 MP4, fast start. Reused with existing desktop/mobile posters."
+  },
+  "brand": {
+    "file": "asset/brand-mark.png",
+    "source": "Existing project asset/Logo.png",
+    "bytes": 17323,
+    "details": "Resized original brand artwork; ownership/license inherited from user-supplied project."
+  }
+}

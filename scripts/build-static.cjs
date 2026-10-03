@@ -10,7 +10,7 @@ async function build() {
   const folders = {
     'deraedge-enroll': ['.html'], 'deraedege-academy': ['.html'],
     'deraedge-firm': ['.html'], 'deraedge-contact': ['.html'], 'deraedge-partnership': ['.html'],
-    js: ['.js'], css: ['.css'], components: ['.html'], asset: ['.png', '.jpg', '.mp4'],
+    js: ['.js'], css: ['.css'], components: ['.html'], asset: ['.png', '.jpg', '.webp', '.mp4'],
   };
   for (const [folder, extensions] of Object.entries(folders)) {
     await mkdir(path.join(output, folder), { recursive: true });

@@ -1,8 +1,9 @@
-const { DatabaseSync } = require('node:sqlite');
-const { mkdirSync } = require('node:fs');
-const path = require('node:path');
+const { DatabaseSync } = require("node:sqlite");
+const { mkdirSync } = require("node:fs");
+const path = require("node:path");
 function openStore(filename) {
-  if (filename !== ':memory:') mkdirSync(path.dirname(filename), { recursive: true });
+  if (filename !== ":memory:")
+    mkdirSync(path.dirname(filename), { recursive: true });
   const db = new DatabaseSync(filename);
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
     CREATE TABLE IF NOT EXISTS orders (
@@ -20,13 +21,29 @@ function openStore(filename) {
       created_at TEXT NOT NULL, sent_at TEXT, next_attempt INTEGER NOT NULL
     );
   `);
-  if (!db.prepare('PRAGMA table_info(orders)').all().some(column => column.name === 'payment_mode')) {
-    db.exec("ALTER TABLE orders ADD COLUMN payment_mode TEXT NOT NULL DEFAULT 'test'");
+  if (
+    !db
+      .prepare("PRAGMA table_info(orders)")
+      .all()
+      .some((column) => column.name === "payment_mode")
+  ) {
+    db.exec(
+      "ALTER TABLE orders ADD COLUMN payment_mode TEXT NOT NULL DEFAULT 'test'",
+    );
   }
-  if (!db.prepare('PRAGMA table_info(orders)').all().some(column => column.name === 'initialize_until')) {
-    db.exec('ALTER TABLE orders ADD COLUMN initialize_until INTEGER NOT NULL DEFAULT 0');
+  if (
+    !db
+      .prepare("PRAGMA table_info(orders)")
+      .all()
+      .some((column) => column.name === "initialize_until")
+  ) {
+    db.exec(
+      "ALTER TABLE orders ADD COLUMN initialize_until INTEGER NOT NULL DEFAULT 0",
+    );
   }
-  db.exec('CREATE TABLE IF NOT EXISTS api_limits (key TEXT PRIMARY KEY, window_start INTEGER NOT NULL, count INTEGER NOT NULL)');
+  db.exec(
+    "CREATE TABLE IF NOT EXISTS api_limits (key TEXT PRIMARY KEY, window_start INTEGER NOT NULL, count INTEGER NOT NULL)",
+  );
   return db;
 }
 module.exports = { openStore };

@@ -181,16 +181,15 @@
       }
       .pillars {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 1px;
-        background: var(--border);
-        border: 1px solid var(--border);
-        border-radius: 2px;
-        overflow: hidden;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        /* Separate cards instead of one continuous bordered panel. */
+        gap: 20px;
         margin-top: 52px;
       }
       .pillar {
         background: rgba(18, 27, 51, 0.55);
+        border: 1px solid var(--border);
+        border-radius: 5px;
         padding: 28px 24px;
         transition: background 0.5s;
       }
@@ -312,6 +311,7 @@
         margin-bottom: 10px;
       }
       .field input,
+      .field select,
       .field textarea {
         width: 100%;
         background: rgba(13, 20, 38, 0.6);
@@ -325,6 +325,7 @@
         transition: border-color 0.3s;
       }
       .field input:focus,
+      .field select:focus,
       .field textarea:focus {
         border-color: var(--gold);
       }

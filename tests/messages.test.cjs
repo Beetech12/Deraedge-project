@@ -100,3 +100,24 @@ test('message API requires same-origin JSON, protects lookup, and ignores inject
   const status = await fetch(`${base}/api/messages/${result.reference}`, { headers: { Authorization: `Bearer ${token}` } });
   assert.equal(status.status, 200);
 });
+
+test('local message forms work with a production public URL but reject other origins', async t => {
+  const { db, service } = fixture(t, { send: async () => {} });
+  const config = configuration({ PUBLIC_URL: 'https://deraedge-project.vercel.app' });
+  const server = createApp({ config, db, messages: service, provider: {} });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const post = origin => fetch(`${base}/api/messages`, { method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json', 'Idempotency-Key': key() }, body: JSON.stringify(contact) });
+  assert.equal((await post('https://evil.example')).status, 403);
+  assert.equal((await post('http://127.0.0.1:1')).status, 403);
+  assert.equal((await post(`http://localhost:${server.address().port}`)).status, 403, 'Host must match the local origin');
+  assert.equal((await post(base)).status, 202);
+  assert.equal(config.publicUrl, 'https://deraedge-project.vercel.app');
+});
+
+test('Gmail display spaces are removed without altering other SMTP passwords', () => {
+  assert.equal(mailConfiguration({ SMTP_PASSWORD: 'abcd efgh ijkl mnop' }).password, 'abcdefghijklmnop');
+  assert.equal(mailConfiguration({ SMTP_PASSWORD: 'abcdefghijklmnop' }).password, 'abcdefghijklmnop');
+  assert.equal(mailConfiguration({ SMTP_HOST: 'smtp.example.com', SMTP_PASSWORD: 'abcd efgh ijkl mnop' }).password, 'abcd efgh ijkl mnop');
+});

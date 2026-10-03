@@ -16,6 +16,7 @@ const paths = ['index.html', 'deraedge-firm/index.html', 'deraedege-academy/inde
       await page.goto(new URL(path, base).href);
       await page.waitForSelector('#header[data-ready]');
       if (path === 'index.html') {
+        await page.locator('#research-desk').scrollIntoViewIfNeeded();
         await page.waitForFunction(() => document.querySelector('#research-status').textContent.includes('could not load'));
         assert.equal(await page.locator('.desk-row').count(), 0);
         assert.equal(await page.locator('.desk-provider').isVisible(), true);
@@ -60,6 +61,7 @@ const paths = ['index.html', 'deraedge-firm/index.html', 'deraedege-academy/inde
       assert.equal(await form.locator('.email-preview').isVisible(), false);
       await form.locator('input[type="email"]').fill('test@example.com');
       if (id === 'partner-form') {
+        await form.locator('#country').selectOption({ label: 'Nigeria' });
         await form.locator('[type="submit"]').click();
         assert.match(await form.locator('.form-status').textContent(), /at least one/);
         await page.locator('#contribution-row button').first().click();
@@ -79,7 +81,7 @@ const paths = ['index.html', 'deraedge-firm/index.html', 'deraedege-academy/inde
     await page.goto(base);
     assert.equal(await page.locator('.fallback-nav').isVisible(), true);
     assert.equal(await page.locator('.reveal').evaluateAll(nodes => nodes.every(n => getComputedStyle(n).opacity === '1')), true);
-    assert.equal(await page.locator('video source').getAttribute('src'), null);
+    assert.match(await page.locator('video source').getAttribute('src'), /hero-finance\.mp4$/);
     assert.deepEqual(errors, []);
     const normal = await browser.newContext();
     await normal.route('https://**/*', route => route.abort());
@@ -98,7 +100,7 @@ const paths = ['index.html', 'deraedge-firm/index.html', 'deraedege-academy/inde
     await nested.goto(new URL('__preview__/deraedge-enroll/index.html', base).href);
     await nested.waitForSelector('#header[data-ready]');
     assert.match(await nested.locator('#primary-nav a').first().getAttribute('href'), /\/__preview__\/index.html$/);
-    assert.equal((await context.request.get(new URL('asset/hero-poster.jpg', base).href)).ok(), true);
+    assert.equal((await context.request.get(new URL('asset/hero-finance-poster.jpg', base).href)).ok(), true);
     const noJS = await browser.newContext({ javaScriptEnabled: false });
     await noJS.route('https://**/*', route => route.abort());
     const plain = await noJS.newPage();

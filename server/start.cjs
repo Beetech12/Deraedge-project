@@ -1,4 +1,4 @@
-require('./env.cjs').loadEnvironment();
+require("./env.cjs").loadEnvironment();
 const { configuration } = require("./config.cjs");
 const { openDatabase } = require("./database.cjs");
 const { paystack } = require("./paystack.cjs");
@@ -8,8 +8,16 @@ const { createMessages } = require("./messages.cjs");
 async function start() {
   const config = configuration();
   const db = await openDatabase(config);
-  const messages = createMessages({ db, mailer: createMailer(mailConfiguration()) });
-  const server = createApp({ config, db, provider: paystack(config.secret), messages });
+  const messages = createMessages({
+    db,
+    mailer: createMailer(mailConfiguration()),
+  });
+  const server = createApp({
+    config,
+    db,
+    provider: paystack(config.secret),
+    messages,
+  });
   messages.start();
   server.listen(
     Number(process.env.PORT || 3000),
@@ -19,7 +27,9 @@ async function start() {
       console.log(
         `Deraedge server: ${config.publicUrl}. Payments: ${config.ready ? (config.live ? "LIVE" : "TEST") : "NOT CONFIGURED"}.`,
       );
-      console.log(`Website email: ${messages.enabled ? "CONFIGURED" : "NOT CONFIGURED"}.`);
+      console.log(
+        `Website email: ${messages.enabled ? "CONFIGURED" : "NOT CONFIGURED"}.`,
+      );
     },
   );
   for (const signal of ["SIGINT", "SIGTERM"])
@@ -30,6 +40,10 @@ async function start() {
         process.exit(0);
       }),
     );
-
 }
-start().catch(() => { console.error("Server could not start. Check payment configuration and database access."); process.exitCode = 1; });
+start().catch(() => {
+  console.error(
+    "Server could not start. Check payment configuration and database access.",
+  );
+  process.exitCode = 1;
+});

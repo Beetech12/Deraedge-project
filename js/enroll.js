@@ -56,7 +56,8 @@
     document.getElementById('payment-policies').hidden = !policyReady;
     for (const type of ['terms','privacy','refund']) if (data.policies[type]) document.getElementById(`${type}-link`).href = data.policies[type];
     document.getElementById('test-payment-note').hidden = !data.enabled || !data.testMode;
-    status.textContent = data.enabled ? 'Review your details and total before continuing to Paystack.' : `Online payment is not available yet. ${(data.issues || []).join(' ')} Contact admissions to enroll.`;
+    // Configuration diagnostics belong to the server/operator, not the customer UI.
+    status.textContent = data.enabled ? 'Review your details and total before continuing to Paystack.' : 'Online payment is not available yet. Contact admissions to enroll.';
     update();
   }).catch(error => {
     catalog = null;

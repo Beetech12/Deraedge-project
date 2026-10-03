@@ -201,7 +201,14 @@ function createHandler({ config, db, provider, messages, serverless = false, roo
         if (pathname === '/api/messages/config' && req.method === 'GET') return json(res, 200, { enabled: Boolean(messages?.enabled), recipient: 'okolochinedu10@gmail.com' });
         if (pathname === '/api/messages' && req.method === 'POST') {
           await rate(req, 'messages', 5);
-          if (req.headers.origin !== config.publicUrl || !req.headers['content-type']?.startsWith('application/json')) throw fail(403, 'Send messages from this website.');
+          // Permit the standalone server's own loopback form without changing the
+          // public payment URL. Never trust forwarded headers for this exception.
+          const localOrigins = ['localhost', '127.0.0.1', '[::1]'].map(host => `http://${host}:${req.socket.localPort}`);
+          const localForm = !serverless
+            && ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress)
+            && localOrigins.includes(req.headers.origin)
+            && req.headers.origin === `http://${req.headers.host}`;
+          if ((!localForm && req.headers.origin !== config.publicUrl) || !req.headers['content-type']?.startsWith('application/json')) throw fail(403, 'Send messages from this website.');
           if (!messages?.enabled) throw fail(503, 'Website sending is not available yet. Your message has not been sent.');
           let body;
           try { body = JSON.parse(await readBody(req, 65536)); } catch (error) { throw error.status ? error : fail(400, 'Invalid JSON.'); }
@@ -246,10 +253,10 @@ function createHandler({ config, db, provider, messages, serverless = false, roo
       if (!['GET', 'HEAD'].includes(req.method)) throw fail(405, 'Method not allowed.');
       // Explicit public allowlist: .env, database, server code, tests, and dotfiles are never served.
       const file = pathname === '/' ? '/index.html' : pathname.endsWith('/') ? `${pathname}index.html` : pathname;
-      if (!/^\/(?:index\.html|deraedge-enroll\/(?:terms|privacy|refund)\.html|(?:deraedge-(?:enroll|firm|contact|partnership)|deraedege-academy)\/(?:index|payment)\.html|(?:js|css|asset|components)\/[a-zA-Z0-9_-]+\.(?:js|css|png|jpg|mp4|html))$/.test(file)) throw fail(404, 'Not found.');
+      if (!/^\/(?:index\.html|deraedge-enroll\/(?:terms|privacy|refund)\.html|(?:deraedge-(?:enroll|firm|contact|partnership)|deraedege-academy)\/(?:index|payment)\.html|(?:js|css|asset|components)\/[a-zA-Z0-9_-]+\.(?:js|css|png|jpg|webp|mp4|html))$/.test(file)) throw fail(404, 'Not found.');
       let content;
       try { content = await readFile(path.join(root, file)); } catch { throw fail(404, 'Not found.'); }
-      const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.png':'image/png', '.jpg':'image/jpeg', '.mp4':'video/mp4' };
+      const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.png':'image/png', '.jpg':'image/jpeg', '.webp':'image/webp', '.mp4':'video/mp4' };
       res.writeHead(200, { 'Content-Type': types[path.extname(file)], 'Cache-Control': 'no-cache' });
       res.end(req.method === 'HEAD' ? undefined : content);
     } catch (error) {
