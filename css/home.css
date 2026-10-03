@@ -14,7 +14,6 @@ em { font-style:normal; color:var(--accent-ink); }
 .hero-content { position:relative; overflow:hidden; background:#0d1426 url('../asset/hero-finance-poster.jpg') center/cover; min-height:720px; display:flex; align-items:center; isolation:isolate; }
 .hero-content video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1s; z-index:-3; }
 .hero-content.video-ready video { opacity:1; }
-.hero-screen { position:absolute; right:0; top:0; width:28%; height:100%; background:url('../asset/institution-markets.webp') 12% center/cover; z-index:-2; opacity:.7; mask-image:linear-gradient(90deg,transparent,#000 45%); }
 .hero-content .veil { position:absolute; inset:0; z-index:-1; background:linear-gradient(90deg,rgba(13,20,38,.98),rgba(13,20,38,.92)30%,rgba(13,20,38,.56)60%,rgba(13,20,38,.15)),linear-gradient(0deg,#0d1426 0%,transparent 35%,#0d142644); }
 .hero-grid { padding-block:155px 95px; width:100%; }
 .hero-copy { max-width:760px; animation:hero-rise .8s both; }
@@ -128,7 +127,6 @@ em { font-style:normal; color:var(--accent-ink); }
 }
 @media(max-width:767px) {
  .hero-content { min-height:720px; background-image:url('../asset/hero-finance-mobile.jpg'); }
- .hero-screen { width:40%; opacity:.4; }
  .hero-grid { padding-block:130px 95px; }
  .hero-copy h1 { font-size:clamp(2.65rem,9vw,3.7rem); }
  .company-name { font-size:.67em; letter-spacing:.01em; }
